@@ -1,0 +1,198 @@
+---
+title: "Limpieza de datos"
+author: "Jose Rios"
+date: "2022-09-09"
+output: html_document
+---
+
+
+```{r}
+setwd("~/Desktop/2022-2/Estadistica 2/Trabajo Grupal")
+```
+
+
+
+```{r}
+library(htmltab)
+library(rio)
+library(readr)
+```
+
+
+#Variable dependiente del desempleo de jovenes de 15 a 22 años 
+
+
+```{r}
+Desempleo =import("https://github.com/20181496/Trabajo-final-Estadistica-2/raw/main/Desempleo.csv")
+head(Desempleo)
+```
+Se aplica la limpieza
+```{r}
+Desempleo$slug<-NULL
+Desempleo$date_of_information<-NULL
+Desempleo$ranking<-NULL
+Desempleo$region<-NULL
+Desempleo$Desempleo=Desempleo$value
+Desempleo$value<-NULL
+Desempleo$Desempleo<- as.numeric(Desempleo$Desempleo)
+gsub(" ","",Desempleo)
+```
+
+```{r}
+head(Desempleo)
+```
+
+
+#variable de obesidad en adultos
+
+
+```{r}
+ObesidadAdult=import("https://github.com/20181496/Trabajo-final-Estadistica-2/raw/main/ObesidadAdult.csv")
+head(ObesidadAdult)
+```
+
+Se aplica la limpieza
+
+```{r}
+ObesidadAdult$slug <-NULL
+ObesidadAdult$date_of_information <-NULL
+ObesidadAdult$ranking <-NULL
+ObesidadAdult$region <-NULL
+ObesidadAdult$ObesidadAdultos=ObesidadAdult$value
+ObesidadAdult$value<-NULL
+ObesidadAdult$ObesidadAdultos<-as.numeric(ObesidadAdult$ObesidadAdultos)
+gsub(" ","",ObesidadAdult)
+head(ObesidadAdult)
+```
+
+
+
+#Variable de gastos en educacion
+
+
+```{r}
+GastosEdu =import("https://github.com/20181496/Trabajo-final-Estadistica-2/raw/main/GastosEdu.csv")
+head(GastosEdu)
+```
+Se procede a limpiar los datos
+```{r}
+GastosEdu$slug <-NULL
+GastosEdu$date_of_information <-NULL
+GastosEdu$ranking <-NULL
+GastosEdu$region<-NULL
+GastosEdu$GastosEducacion=GastosEdu$value
+
+GastosEdu$value<-NULL
+
+GastosEdu$GastosEducacion<-as.numeric(GastosEdu$GastosEducacion)
+gsub(" ","",GastosEdu)
+head(GastosEdu)
+```
+
+
+
+#Variable de libertad civica
+
+
+```{r}
+library(dplyr)
+library(stringr)
+linkE='https://en.wikipedia.org/wiki/Democracy_Index'
+xpathE='/html/body/div[3]/div[3]/div[5]/div[1]/table[6]'
+LiCiv= htmltab(linkE,xpathE)
+str_remove_all(LiCiv$name," ")
+head(LiCiv)
+```
+Se limpia la data
+```{r}
+LiCiv$`Rank >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes` <-NULL
+LiCiv$`Elec­toral pro­cessand plura­lism >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes` <-NULL
+LiCiv$`Func­tioningof govern­ment >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes` <-NULL
+LiCiv$`Poli­ticalpartici­pation >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes` <-NULL
+LiCiv$`Poli­ticalcul­ture >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes` <-NULL
+LiCiv$`.mw-parser-output .tooltip-dotted{border-bottom:1px dotted;cursor:help}Δ Rank >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes` <-NULL
+LiCiv$`Δ Score >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes` <-NULL
+LiCiv$`Overall score >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes` <-NULL
+LiCiv$`Regime type >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes` <-NULL
+LiCiv$name=LiCiv$`Country >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes`
+LiCiv$`Country >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes`<-NULL
+LiCiv$LibertadCivil=LiCiv$`Civilliber­ties >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes`
+LiCiv$`Civilliber­ties >> Full democracies >> Flawed democracies >> Hybrid regimes >> Authoritarian regimes`<-NULL
+LiCiv$LibertadCivil<-as.numeric(LiCiv$LibertadCivil)
+
+```
+
+```{r}
+LiCiv$name =trimws(LiCiv$name,which=c("left"),whitespace = "[\\h\\v]")
+head(LiCiv)
+```
+#Infraestructura de Transito
+```{r}
+RoadW <- read_csv("RoadW.csv")
+head(RoadW)
+```
+#Se Limpia la data
+```{r}
+RoadW$slug<-NULL
+RoadW$date_of_information <-NULL
+RoadW$ranking <-NULL
+RoadW$region <-NULL
+RoadW$KMVia<-as.numeric(RoadW$value)
+RoadW$value<-NULL
+head(RoadW)
+```
+
+
+
+#Se forma la database a usar
+
+```{r}
+DataBaseP1=merge(Desempleo,GastosEdu,by='name')
+```
+
+```{r}
+library(dplyr)
+```
+
+```{r}
+DataBaseP2<-DataBaseP1%>%full_join(RoadW)
+
+DataBaseP3<-DataBaseP2%>%full_join(ObesidadAdult)
+DataBase4<-DataBaseP3%>%full_join(LiCiv)
+```
+Creando la database y linpiando los datos con valores perdidos
+
+
+```{r}
+"DatabaseF"<-na.omit(DataBase4)
+```
+
+
+```{r}
+  write.csv(DataBaseF,"/Users/fabianrios/Desktop/2022-2/Estadistica 2/Trabajo Grupal/DataBase.csv",row.names = TRUE)
+```
+
+#### Hipotesis y regresion  ####
+
+Consideramos, de nuevo, que el desempleo juvenil se puede explicar por los gastos en educacion que permiten una especializacion, los kilometros de carreteras pavimentadas y no pavimentadas que permiten la extension de area de trabajo, la libertad civil y la obesidad del individuo que puede afectar a los trabajos fisicos. 
+Esto hace que se realice una regresion adecuada, en este caso la lineal para ver si se puede ver la influencia del gasto en la educacion, los kilometros de carreteras, la obesidad en los adultos y la libertad civil a nivel global.
+
+
+```{r}
+HPJose=Desempleo~GastosEducacion+KMVia+ObesidadAdultos+LibertadCivil
+```
+
+```{r}
+RL=lm(HPJose,data=DatabaseF)
+summary(RL)
+```
+
+Diagnosticamos la regresion antes de llegar a una conclusion de la hipotesis. 
+
+```{r}
+plot(RL,1)
+plot(RL,3)
+plot(RL,2)
+```
+### Se ppuede observar que hay una normalidad de los residuos dentro de lo esperado y sus estandarizados se mantienen dentro de los margenes, lo que muestra una homocedasticidad. En adicion a esto tambien se puede ver que dichos residuos presentan una normalidad dentro de la mayoria de resultados por lo que la regresion Lineal se ve presente como la mas adecuada para las predicciones de las variables selecccionadas.
+Una vez visto el diagnostico podemos ver que la propia regresion muestra que la hipotesis que se presento no muestra los resultados que esperabamos. Sin embargo, vemos que pese a que los gastos estatales en educacion, las libertades civiles y las carreteras existentes no presentan significancia en el desempleo a nivel global, la obesidad en adultos si se ve presente como una variable significativa en lo que respecta al desempleo de jovenes a nivel global. Considerando esto, es posible ver que la obesidad tiene un impacto en el sector laboral mayor que el resto de variables consideradas para este analisis. 

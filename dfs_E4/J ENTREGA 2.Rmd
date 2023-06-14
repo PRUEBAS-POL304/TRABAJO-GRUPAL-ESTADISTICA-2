@@ -1,0 +1,218 @@
+---
+title: "JOEL"
+output: html_document
+date: "2022-10-07"
+---
+
+
+
+LIMPIEZA JOEL
+
+
+  - INVERSION EXTRANJERA:
+  
+```{r}
+library(rio)
+data1="https://github.com/20181496/Trabajo-final-Estadistica-2/files/9737725/inverex.csv"
+datainver=import(data1)
+```
+
+```{r}
+#Borrando Filas 
+datainver = datainver[-c(1:4),]
+
+#seleccionando pais y inverext
+library(dplyr)
+inverextranjera <- select(datainver, 'Data Source','_60') 
+
+#Renombrando las columnas seleccionadas:
+colnames(inverextranjera) = c("pais","inverex")
+```
+
+
+  - CRECIMIENTO DEL PBI:
+  
+```{r}
+data2="https://github.com/20181496/Trabajo-final-Estadistica-2/files/9737728/PBI.csv"
+dataPBI=import(data2)
+```
+
+```{r}
+#Borrando Filas 
+dataPBI = dataPBI[-c(1:4),]
+
+#seleccionando pais y PBI
+CreciPBI <- select(dataPBI, 'Data Source','_60') 
+
+#Renombrando las columnas seleccionadas:
+colnames(CreciPBI) = c("pais","PBI")
+```
+
+
+  - GESTION ECONOMICA:
+  
+```{r}
+data3="https://github.com/20181496/Trabajo-final-Estadistica-2/files/9737726/geseco.csv"
+datageseco=import(data3)
+```
+
+```{r}
+#Borrando Filas 
+datageseco = datageseco[-c(1:4),]
+
+#seleccionando pais y Gestión económica
+geseconomia <- select(datageseco, 'Data Source','_60') 
+
+#Renombrando las columnas seleccionadas:
+colnames(geseconomia) = c("pais","geseco")
+```
+
+
+  - HOGARES TUGURIOS
+```{r}
+data4="https://github.com/20181496/Trabajo-final-Estadistica-2/files/9737723/tugurio.csv"
+datatugurios=import(data4)
+```
+
+```{r}
+#Borrando Filas 
+datatugurios = datatugurios[-c(1:4),]
+
+#seleccionando pais y barriostugurio
+barriostugurio <- select(datatugurios, 'Data Source','_60') 
+
+#Renombrando las columnas seleccionadas:
+colnames(barriostugurio) = c("pais","tugurio")
+```
+
+
+
+```{r}
+dataall=merge(inverextranjera,CreciPBI, by = "pais")
+
+str(dataall)
+```
+
+```{r}
+dataall[which(is.na(dataall$PBI)),]
+sum(is.na(dataall$PBI))
+```
+
+```{r}
+dataall[which(is.na(dataall$inverex)),]
+sum(is.na(dataall$inverex))
+```
+
+  Segundo MERGE:
+```{r}
+dataall2=merge(geseconomia,barriostugurio, by = "pais")
+str(dataall2)
+```
+```{r}
+dataall2[which(is.na(dataall$tugurio)),]
+sum(is.na(dataall2$tugurio))
+```
+
+```{r}
+dataall2[which(is.na(dataall$geseco)),]
+sum(is.na(dataall2$geseco))
+```
+
+
+Unificando ambas:
+```{r}
+dataunificada=merge(dataall,dataall2, by = "pais")
+str(dataunificada)
+```
+```{r}
+dataunificada <- na.omit(dataunificada)
+```
+
+```{r}
+#Borrando Filas 
+dataunificada = dataunificada[-c(1:16),]
+```
+
+  - AHORA CON LA VARIABLE DEPENDIENTE: DESEMPLEO 
+  
+```{r}
+library(rio)
+datau="https://github.com/20181496/Trabajo-final-Estadistica-2/files/9739394/desempleo.csv"
+desempleo=import(datau)
+```
+
+```{r}
+#Borrando Filas 
+desempleo = desempleo[-c(1:4),]
+
+#seleccionando pais y inverext
+library(dplyr)
+desempleojuve <- select(desempleo, 'Data Source','_60') 
+
+#Renombrando las columnas seleccionadas:
+colnames(desempleojuve) = c("pais","desempleojuv")
+```
+
+
+```{r}
+head(desempleo)
+```
+
+```{r}
+Dataahorasi=merge(desempleojuve,dataunificada,by='pais')
+```
+
+
+```{r}
+library(rio)
+export(Dataahorasi, "data.csv")
+```
+
+
+-----------------------------------------------------------------------
+
+
+
+```{r}
+library(rio)
+datauu="https://github.com/20181496/Trabajo-final-Estadistica-2/files/9739410/data.csv"
+datajoel=import(datauu)
+```
+
+```{r}
+names(datajoel)
+str(datajoel)
+```
+NO OLVIDAR FORMATEAR LAS VARIABLES SI ES NECESARIO POR EJ.
+```{r}
+#porsiaca
+datajoel$desempleojuv <- as.numeric(datajoel$desempleojuv)
+datajoel$inverex      <- as.numeric(datajoel$inverex)
+datajoel$PBI          <- as.numeric(datajoel$PBI)
+datajoel$geseco       <- as.numeric(datajoel$geseco)
+datajoel$tugurio<- as.numeric(datajoel$tugurio)
+```
+
+
+# Regresión Lineal Múltiple
+```{r}
+modelo2 = lm(desempleojuv ~ inverex + PBI +  geseco+  tugurio, data=datajoel)
+summary(modelo2)
+```
+
+```{r}
+modelo3 = lm(desempleojuv ~ PBI +  geseco, data=datajoel)
+summary(modelo3)
+```
+
+
+Manteniendo todas las variables fijas
+(hipótesis)	H0:
+			H1:
++ Al revisar los p-values (4.05e-05), (0.00265) los cuales son menores a 0.05, rechazamos la H0. Por lo que a un 95% de confianza las variables independientes (PBI) y (geseco) tienen impacto significativo en la variable dependiente (desempleo). 
+
+Pero al revisar los p-values (0.1330), (0.25868) de las otras variables independientes (inverex) y (tugurio), respectivamente, advertimos que es mayor a 0.05, a saber, no aporta significativamente al modelo2. Por tanto, se recomienda construir un modelo de regresión sin las variables mencionadas. Pese a ello, para la interpretacón lo tomaremos en cuenta. Así se determina que el modelo2 solo es válido para predecir el desempleo de un persona, en este caso, a partir del crecimiento del PBI y la gestión económica de su respectivo país. 
+
+  + El modelo2 ayuda a predecir el 33% de la variabilidad de la variable desempleo de una persona. Cabe precisar que si quitamos las varaibles no signficativas del modelo de regresión, el Adjusted R-squared se mantiene casi igual. Por lo que podemos concluir que es un modelo medianamente bueno/decente.
+  
+  
