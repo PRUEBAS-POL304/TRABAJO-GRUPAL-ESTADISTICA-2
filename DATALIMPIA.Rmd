@@ -10,8 +10,29 @@ date: "2022-10-07"
 ```{r}
 library(rio)
 data0="https://github.com/20181496/Trabajo-final-Estadistica-2/files/9936907/desempleoBM.csv"
-desempleo=import(data0)
+desemple=import(data0)
+
+#write.csv(desemple, "desempleoJ.csv", row.names = FALSE)
+#write.csv2(desemple, "desempleoJ2.csv", row.names = FALSE)
 ```
+
+
+```{r}
+library(rio)
+desemple1=import("desempleoJ.csv")
+desemple2=import("desempleoJ2.csv")
+```
+
+
+```{r}
+library(rio)
+data1 = "https://github.co+m/luccemhu/TRABAJO-GRUPAL-ESTADISTICA-2/blob/main/dfs_E4/desempleoBM.csv"
+
+desempleo = import(data1)
+```
+
+
+
 
 ```{r}
 #Borrando Filas 
