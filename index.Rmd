@@ -1,0 +1,587 @@
+---
+title: "ENTREGA_4_FINAL: Determinantes del desempleo juvenil en el mundo"
+author: 'Integrantes: Joel Hu y Fabian Rios'
+author1: "Jefe de práctica: Alexander Benites"
+author2: "Profesor: José Manuel Magallanes Reyes "
+date: '2022-2'
+subtitle: 'Curso: POL304 - Estadística para el análisis político 2'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+Este breve reporte tiene como objetivo un análisis de correlación entre el desempleo juvenil (de jóvenes de 16 a 24 años) con las variables de la infraestructura de carreteras, la obesidad en adultos, la inversión extranjera, los gastos en educación pública y el PBI de 160 países del mundo en el año 2018. 
+
+Esto se realizará por medio de la creación de modelos de regresión para advertir cuales de las variables presentadas tienen un impacto sobre la variable dependiente (Desempleo juvenil). Todo ello con el objetivo de entender en mayor profundidad algunos determinantes que podrían explicar el desempleo juvenil en el mundo. 
+
+A continuación, se llevarán a cabo los siguientes análisis:
+
+  - Realizar un análisis descriptivo de los resultados a nivel mundial
+
+  - Implementar técnicas multivariadas para modelar el comportamiento del desempleojuvenil, particularmente de 18 a 24 años en el mundo
+
+  - Aplicar técnicas de diagnósticos de regresión.
+  
+  - Aplicar técnicas de reducción de dimensionalidad
+    
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+
+# Librerías del ejercicio:
+library(rio)
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+library(kableExtra)
+library(reshape)
+library(DT)
+library(equatiomatic)
+library(modelsummary)
+library(factoextra)
+library(cluster)
+library(lmtest)
+library(nortest)
+library(BBmisc)
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+library(rio)
+dataUNIFICADA = "https://github.com/taiyonoJoel/LIMPIEZA/raw/main/dataunificada.csv"
+datavar = import(dataUNIFICADA)
+
+#Eliminando filas innecesarias:
+datavar = datavar[-c(81:83, 133:139), ]
+```
+
+```{r include=FALSE}
+table = datavar[, c(1, 3)]
+```
+
+```{r echo=FALSE}
+datatable(table, filter = "top")
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+datavar$inverex       <- as.numeric(datavar$inverex)
+datavar$PBI           <- as.numeric(datavar$PBI)
+datavar$desempleojuv  <- as.numeric(datavar$desempleojuv)
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+datavar$transito      <- as.numeric(datavar$transito)
+datavar$obeadult      <- as.numeric(datavar$obeadult)
+datavar$gastoseduc    <- as.numeric(datavar$gastoseduc)
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+names(datavar)
+str(datavar)
+```
+
+
+# Regresión Lineal Múltiple
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+modelo1 = lm(desempleojuv ~ inverex + PBI, data = datavar)
+summary(modelo1)
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+modelo2 = lm(desempleojuv ~ inverex + PBI  +  transito +  obeadult + gastoseduc,
+             data = datavar)
+summary(modelo2)
+```
+
+Hipótesis	
+
+  - H0: No todos o ninguno de los indicadores presentan una significancia y no tienen un efecto relevante para explicar a la variable dependiente dentro de los modelos realizados
+  
+  - H1: Todos los indicadores muestran ser significativos y tienen un efecto relevante dentro de los modelos realizados.
+  
+Manteniendo todas las variables fijas...
+
++ Una vez revisamos los p-valores de cada modelo podemos observar que ambos modelos funcionan correctamente, lo que nos permite revisar cada modelo para confirmar que la hipotesis nula se ve rechazada. 
+
++ Observando ambos modelos, sin embargo, vemos que ûnicamente una de las variables se destaca como significante, en este caso, es la variable del crecimiento del PBI como se puede ver en el modelo 1 y 2. Este último se concentra en esa variable independiente. Entonces, con la hipótesis nula presente, tomamos en cuenta que tanto explican ambos modelos, 0.07087 y 0.06999, respectivamente. Estos valores son el porcentaje explicativo de cada modelo y vemos que hay una diferencia ínfima cuando vemos el cambio del primer modelo con el segundo: la adición de las demás variables: obesidad, gasto en educación y la infraestructura del tránsito no poseen un efecto significante en el desempleo juvenil a nivel mundial. 
+
++ Con estas conclusiones preliminares, vemos que los factores que toman en consideración Veronica Espinoza, para su revisión de la obesidad, como una barrera para el desempleo no se pueden aplicar en un marco a nivel global en comparación a los utilizados en Ecuador (a nivel nacional), de la misma manera ocurre en el Perú con Cesar Calvo y su postura con respecto a los gastos en educación y el ingreso recibido; los autores que realizaron sus investigaciones no es que no sean correctos, pero sus modelos de estudio no se pueden aplicar correctamente a nivel global.
+  
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+#equatiomatic::extract_eq(modelo2, use_coefs = TRUE)
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+model = list('desempleojuv' = datavar)
+modelsummary(modelo2,
+             title = "OLS",
+             stars = TRUE,
+             output = "kableExtra")
+```
+
+### Diagnósticos de regresión:
+
+#### Linealidad:
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+plot(modelo2, 1)
+```
+
+Vemos que la distribución de los casos no sigue completamente la línea horizontal. Este modelo no tiene mucha linealidad, lo cual significa que este modelo no sería muy útil para hacer predicciones en otros casos.
+
+#### Homocedasticidad:
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+plot(modelo2, 3)
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+bptest(modelo2)
+```
+  - El P-value es mayor a 0.05, por lo que se mantiene la hipótesis nula. Si hay homocedasticidad. El error del modelo no afecta su varianza.
+
+#### Normalidad de los residuos:
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+plot(modelo2, 2)
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+shapiro.test(modelo2$residuals)
+```
+  - El P-value es menor a 0.05, por lo cual se rechaza la hipótesis nula. Los residuos del modelo no tiene una distribución normal.
+
+#### No multicolinealidad:
+
+  - Debido a que el modelo2 tiene solo una variable independiente, no es posible realizar la prueba de no multicolinealidad.
+
+#### Valores influyentes:
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+plot(modelo2, 5)
+```
+  - Advertimos observaciones que están fuera de la línea de Cook, a saber, hay necesidad de eliminar algunos casos, ya que son problemáticos para el modelo2, a excepcion del PBI.
+
+```{r,include=FALSE,message=FALSE,warning=FALSE}
+checkModelo2=as.data.frame(influence.measures(modelo2)$is.inf)
+head(checkModelo2)
+```
+
+```{r,include=FALSE,message=FALSE,warning=FALSE}
+checkModelo2[checkModelo2$cook.d & checkModelo2$hat, ]
+```
+  - Con las pruebas extras al modelo, podemos estar seguros de que hay casos que deberían eliminarse por su efecto en el modelo2. 
+
+
+## Clustering:
+
+Al graficar las variables, podemos ver que son bastante diferentes. Es muy difícil comparar variables que estén distribuidas de manera tan desigual. Para trabajar con ellas, estandarizaremos las variables.
+
+```{r,include=FALSE,message=FALSE,warning=FALSE}
+boxplot(normalize(datavar[, -1], method = 'range', range = c(0, 1)))
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+boxplot(normalize(datavar[, -1], method = 'standardize'))
+```
+
+Optamos por el método de standardize:
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+datavar[, -1] = normalize(datavar[, -1], method = 'standardize') 
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+cor(datavar[, -1])
+```
+
+  - La variable del índice de (PBI) tiene una relación negativa con el resto de las variables. Esto puede ser un problema para el proceso de clusterización, por lo que invertiremos la variable PBI.
+
+```{r,include=FALSE,message=FALSE,warning=FALSE}
+datavar$PBI = -1 * datavar$PBI
+
+#Veamos correlaciones entre estas variables tipificadas:
+cor(datavar[, -1])
+```
+
+  + Con el índice de PBI invertido, la variable ahora muestra que tan NO desigual es un país.
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+dataClus = datavar[, -1]
+row.names(dataClus) = datavar$pais
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+library(cluster)
+g.dist = daisy(dataClus, metric = "gower")
+```
+
+
+### Proponemos cantidad de clusters: En este caso, solo se utilizaremos Agnes
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+# PAM:
+library(factoextra)
+fviz_nbclust(dataClus,
+             pam,
+             diss = g.dist,
+             method = "gap_stat",
+             k.max = 10,
+             verbose = F)
+```
+
+**AGNES:**
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+fviz_nbclust(dataClus,
+             hcut,
+             diss = g.dist,
+             method = "gap_stat",
+             k.max = 10,
+             verbose = F,
+             hc_func = "agnes")
+```
+
+
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+#**DIANA:**
+fviz_nbclust(dataClus, hcut, diss = g.dist, method = "gap_stat", k.max = 10, verbose = F, hc_func = "diana")
+```
+
+  - Optamos por formar 4 clusters
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+#PAM
+set.seed(123)
+grupos = 4
+res.pam = pam(g.dist, k = grupos, cluster.only = F)
+dataClus$pam = res.pam$cluster
+
+#Agnes
+res.agnes <- hcut(g.dist,
+                  k = grupos,
+                  hc_func = 'agnes',
+                  hc_method = "ward.D")
+dataClus$agnes = res.agnes$cluster
+
+#Diana
+res.diana <- hcut(g.dist, k = grupos, hc_func = 'diana')
+dataClus$diana = res.diana$cluster
+```
+
+### Análisis de las siluetas: solo se expone Agnes
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+#PAM:
+fviz_silhouette(res.pam)
+```
+
+**AGNES:**
+
+```{r echo=FALSE}
+fviz_silhouette(res.agnes)
+```
+
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+#DIANA:
+fviz_silhouette(res.diana)
+```
+
+  - Se observa que el método de Agnes es el que tiene un silhouette width mayor que los otros métodos. Además, gracias al gráfico podemos observar que tiene pocos (6) datos mal clusterizados. Por ello, optamos por utilizar Agnes para proceder con los clusters.
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+library(magrittr)
+
+silPAM = data.frame(res.pam$silinfo$widths)
+silPAM$country = row.names(silPAM)
+poorPAM = silPAM[silPAM$sil_width < 0, 'country'] %>% sort()
+
+
+silAGNES = data.frame(res.agnes$silinfo$widths)
+silAGNES$country = row.names(silAGNES)
+poorAGNES = silAGNES[silAGNES$sil_width < 0, 'country'] %>% sort()
+
+silDIANA = data.frame(res.diana$silinfo$widths)
+silDIANA$country = row.names(silDIANA)
+poorDIANA = silDIANA[silDIANA$sil_width < 0, 'country'] %>% sort()
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+poorPAM
+```
+
+**poorAGNES:**
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+poorAGNES
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+poorDIANA
+```
+  - Evidenciamos que PAM presenta 13 (países) datos mal clusterizados; AGNES, como vimos en el gráfico de siluetas, 6 países; y DIANA, 11 países. Esto refureza nuestra decisión de utilizar el método AGNES, pues nos muestra que, al utilizar este método de clusterización, solo 6 países quedarán fuera de los clusters que hemos creado.
+
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+aggregate(. ~ agnes, data = dataClus, mean)
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+original = aggregate(. ~ agnes, data = dataClus, mean)
+original[order(original$inverex), ]
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+original[order(original$PBI), ]
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+original[order(original$desempleojuv), ]
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+original[order(original$transito), ]
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+original[order(original$obeadult), ]
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+original[order(original$gastoseduc), ]
+```
+ 
+  - Vemos que en los 4 clusters, los valores promedios de las variables son casi los mismos. En el cluster 1, se encuentran los casos con los mayores valores en las variables. En el cluster 2, se encuentran los países con las variables con valores en promedio más altos. En el cluster 3, se encuentran los países con las variables con valores en promedio más altos. En el cluster 4, se encuentran los países con las variables con valores en promedio más altos.
+
+```{r, include =FALSE,message=FALSE,warning=FALSE}
+#Guardamos las columnas de PAM, AGNES Y DIANA en la data integrada, y eliminemosla de dataClus.
+
+datavar$pamVARpoor = datavar$pais %in% poorPAM
+datavar$pamVAR = as.ordered(dataClus$pam)
+dataClus$pam = NULL
+
+datavar$agnesVARpoor = datavar$pais %in% poorAGNES
+datavar$agnesVAR = as.ordered(dataClus$agnes)
+dataClus$agnes = NULL
+
+datavar$dianaVARpoor = datavar$pais %in% poorDIANA
+datavar$dianaVAR = as.ordered(dataClus$diana)
+dataClus$diana = NULL
+```
+
+
+#### Graficamos los clusters:
+
+**Dandole a cada pais una coordenada**
+  - Refleja sus posiciones en base a las distancias entre esos países mediante un plano bidimensional:
+
+```{r, echo =FALSE,message=FALSE,warning=FALSE,eval=TRUE,fig.show='hold',fig.width=9.5,fig.height=5.55, fig.align="center"}
+proyeccion = cmdscale(g.dist, k = 2, add = T)
+
+datavar$dim1 <- proyeccion$points[, 1]
+datavar$dim2 <- proyeccion$points[, 2]
+
+library(ggrepel)
+base = ggplot(datavar, aes(x = dim1,
+                           y = dim2,
+                           label = row.names(dataClus)
+                           )
+              )
+base + geom_text_repel(size = 3,
+                       max.overlaps = 50,
+                       min.segment.length = unit(0, 'lines')
+                       )
+```
+
+
+```{r include =FALSE,message=FALSE,warning=FALSE,eval=TRUE,fig.show='hold',fig.width=9.5,fig.height=5.55, fig.align="center"}
+
+# Gráfica de PAM
+# Conglomerados PAM en Mapa Bidimensonal de países
+
+# solo paises mal clusterizados
+PAMlabels = ifelse(datavar$pamVARpoor, datavar$pais, '')
+
+# base
+base = ggplot(datavar, aes(x = dim1, y = dim2))  +
+  scale_color_brewer(type = 'qual', palette = 'Dark2') + 
+  labs(subtitle = "Se destacan los países mal clusterizados")
+
+pamPlot = base + geom_point(size = 3,
+                            aes(color = pamVAR))  +
+  labs(title = "PAM")
+# hacer notorios los paises mal clusterizados
+pamPlot + geom_text_repel(
+  size = 4,
+  aes(label = PAMlabels),
+  max.overlaps = 50,
+  min.segment.length = unit(0, 'lines')
+)
+```
+
+#### Gráfica de AGNES
+  - Conglomerados en Mapa Bidimensional de países:
+```{r echo=FALSE,message=FALSE,warning=FALSE,eval=TRUE,fig.show='hold',fig.width=9.5,fig.height=5.55, fig.align="center"}
+# solo paises mal clusterizados
+AGNESlabels=ifelse(datavar$agnesVARpoor,datavar$pais,'')
+
+agnesPlot=base + geom_point(size=3, 
+                            aes(color=as.factor(agnesVAR))) +
+          labs(title = "AGNES") 
+# hacer notorios los paises mal clusterizados
+agnesPlot + geom_text_repel(size=4,
+                            aes(label=AGNESlabels),
+                            max.overlaps = 50,
+                            min.segment.length = unit(0, 'lines')
+                            )
+```
+
+```{r, include =FALSE,message=FALSE,warning=FALSE,eval=TRUE,fig.show='hold',fig.width=9.5,fig.height=5.55, fig.align="center"}
+
+# Gráfica de DIANA
+# Conglomerados DIANA en Mapa Bidimensional de países:
+
+# solo paises mal clusterizados
+DIANAlabels = ifelse(datavar$dianaVARpoor, datavar$pais, '')
+
+dianaPlot = base + geom_point(size = 3,
+                              aes(color = dianaVAR)) +
+  labs(title = "DIANA")
+
+# hacer notorios los paises mal clusterizados
+dianaPlot + geom_text_repel(
+  size = 4,
+  aes(label = DIANAlabels),
+  max.overlaps = 50,
+  min.segment.length = unit(0, 'lines')
+)
+```
+
+
+
+#### Veamos el mapa del mundo separado por los países para analizar mejor los resultados
+
+```{r include=FALSE}
+library(rgdal)
+library(sp)
+```
+
+```{r include=FALSE}
+#debemos agregar el ISO para el mapa
+
+ISO = "https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/raw/master/all/all.csv"
+dataISO = read.csv(ISO)
+
+#Eliminando columnas innecesarias:
+dataISO = dataISO[, -c(2, 4:11)]
+
+newnames = c("pais", "iso3")
+names(dataISO) = newnames
+
+dataISOvar = merge(datavar, dataISO, by = "pais")
+```
+
+
+```{r include=FALSE}
+## SUBDATA: VARIABLE INDEPENDIENTE, PAIS E ISO:
+varindep = dataISOvar[, c(1, 4, 16)]
+```
+
+
+```{r include=FALSE}
+mapDIS = sf::read_sf("shapes_mundo.shp") # shapefile
+```
+
+
+#### Visualización del desempleo juvenil en el mundo
+
+```{r include=FALSE}
+mapDIS2 = merge(mapDIS,
+                varindep,
+                by.x = 'iso3',
+                by.y = 'iso3',
+                all.x = T) #siempre primero el shape
+```
+
+```{r echo=FALSE, fig.height=5.55, fig.show='hold', fig.width=9.5, message=FALSE, warning=FALSE}
+### Mapa de variable dependiente
+
+mapaleyendaL = ggplot(mapDIS2) + geom_sf() + theme_light()
+
+mapaleyL = mapaleyendaL + geom_sf(data = mapDIS2,
+                                  aes(fill = desempleojuv),
+                                  color = "gray")
+
+mapa = mapaleyL +
+  coord_sf() + theme_void() +
+  
+  theme(
+    axis.title = element_blank(),
+    axis.text = element_blank(),
+    legend.position = "bottom"
+  ) + labs(fill = " ") + theme(legend.text = element_text(size = 10)) +
+  
+  labs(title = "Desempleo juvenil en el mundo") +
+  
+  theme(plot.title = element_text(
+    color = "black",
+    size = 10,
+    face = "bold"
+  ))
+
+mapa
+```
+  - A partir de nuestra variable dependiente podemos observar una distribución territorial de la siguiente manera.
+
+  -   Los países del sur de África como Sudáfrica, Namidia y Botswana presentan bajos niveles de desempleo juvenil. Esto se puede deber a varios factores, pero se tendría en cuenta el reciente crecimiento económico de dichos países. Algo similar ocurre con algunos países de los Balcanes, pero es debido a la ausencia de personas de mediana edad debido a las guerras que hubieron en años anteriores, lo que explica la necesidad de que los jóvenes inicien una entrada temprana al mercado laboral.
+
+  -   En varios países de occidente junto con China, India y Japón hay una tasa bastante alta de desempleo juvenil. Esto se puede verse explicado en relación a 2 factores clave para los primeros 2 países y un tercero que es un factor global. El primer factor es la gran concentración de población en dichas zonas, que terminan creando poco espacio laboral para las personas nuevas que se deseen introducir a estas economías y optan por trabajar en el extranjero, como ocurre con India. El segundo factor es que debido a como la economía de dichos países está distribuida, muchas poblaciones que se encuentran en áreas rurales terminan trabajando de manera informal o no presentan un trabajo definido, por lo que quedan catalogados como desempleados de forma indirecta. El tercer factor es algo que se ve puede ver con varios países y es principalmente que se toma demasiado en cuenta la educación universitaria, a veces por encima de la propia estabilidad económica, por lo que los estudiantes universitarios, aquellos que se encuentran en el margen de estudio de la variable independiente, tienden a no trabajar para concentrarse en sus estudios y solamente tienen un empleo si es que necesitan de pagar la universidad en caso que no tengan una beca o sus padres no puedan pagarles la universidad. 
+
+  -   Se puede ver también que hay varios países del centro de África y cercanos a Siberia que poseen altos niveles de desempleo juvenil. Si bien esto puede deberse a factores interiores de cada pais, tambien es probable que esto se deba a los factores ya mencionados como la importancia al estudio universitario o a un error en el proceso de clusterizacion. 
+
+
+
+#### Mapa de Clustering: 
+
+```{r include=FALSE}
+dataClus$pais = row.names(dataClus)
+row.names(dataClus) = NULL
+```
+
+```{r include=FALSE}
+datavar = merge(datavar, dataClus, by = "pais")
+datavar$agnesVAR = factor(datavar$agnesVAR)
+```
+
+```{r echo=FALSE}
+mapDIS3=merge(mapDIS,dataISOvar,by.x='iso3',by.y='iso3', all.x = T) 
+```
+
+```{r echo=FALSE,message=FALSE,warning=FALSE,eval=TRUE,fig.show='hold',fig.width=9.5,fig.height=5.55, fig.align="center"}
+mapaleyendaL= ggplot(mapDIS3)+ geom_sf() + theme_light()
+
+mapaleyL= mapaleyendaL + geom_sf(data=mapDIS3,
+              aes(fill=agnesVAR),color = "gray")
+      
+mapa3= mapaleyL +
+coord_sf() + 
+scale_fill_manual(values=c("#29211F","#65A752","#1C6AA8","#D72E3E")) + theme_void() +
+  
+  
+theme(axis.title = element_blank(), axis.text = element_blank(), legend.position = c(1.1,0.55)) + labs(fill=" ") + theme(legend.text = element_text(size = 13)) +
+  
+labs(title = "4 clusters",caption = "Fuente: Banco Mundial 2022. Elaboración propia.  @luccemhu") +
+  
+theme(
+plot.title = element_text(color="black", size=15, face="bold"),
+plot.caption = element_text(color = "black", size=10))
+
+mapa3
+```
+
+  -   Al separar los países por clusteres vemos como se acentúa más lo planteado de los países mencionados, especialmente con China e India al ver como son los únicos países que pertenecen a ese cluster o al menos los únicos que posean una relevancia considerable al estudio. Se ve como los factores pueden explicar dicha situacion economica y, por ende, porque se encuentran juntos en el cluster. 
+
+  -   Otro Cluster que ocupa varios países de América y Europa se puede explicar con el tercer factor ya mencionado por la importancia que se le da a los estudios universitarios, por lo que el tercer factor postulado termina siendo en cierta parte un motivo bastante común para que los estudiantes no estén en una situación de empleo. 
+  
+  -   De la misma manera, vemos que el cluster que conforma al sur de África y los Balcanes vuelven a confirmar que sus situaciones históricas o locales explican el motivo de su bajo nivel de desempleo juvenil en comparación con el resto de países del mundo. 
+  
+  -   Por último, observamos que hay un cluster adicional que cubre África del Sahara junto con Bangladesh e Irán y Etiopía. Este cluster se puede ver como está mejor definido una vez que lo comparamos con el mapa sin clusterisar, es mucho más visible que este se concentra en áreas donde hubo o hay conflictos internos como las guerrillas en centroáfrica o los conflictos religiosos que persisten en Bangladesh (entre el islam y el hinduismo). 
+  
