@@ -1,0 +1,599 @@
+---
+title: "Trabajo final de estadistica"
+author: "Gianfranco Raúl Romero Sucapuca"
+date: '2022-06-17'
+output: rmdformats::material
+---
+
+# Introducción y objetivos
+
+La desigualdad es un problema que cada vez cobra más relevancia en la discusión académica. Al momento de juzgar la situación económica de un país, los investigadores han optado por abandonar las alternativas más tradicionales de medir únicamente el PBI nacional o el PBI per cápita. En vez de ello, se ha optado por analizar la desigualdad de un país, pues esta suele estar ligada a otros factores como la estabilidad política o las exclusiones a ciertos grupos de la población. Conocer la desigualda en un país nos ayuda a tener una visión más completa sobre su realidad socio-económica, por lo cual es qde gran importancia conocer las variables que ayudan a explicarla.
+
+Este trabajo busca, en un primer lugar, entender las causas de la desigualdad. Se analizará primero la riqueza promedio, medida a través del PIB per cápita, y su relación con la desigualdad. Luego, se analizará el ingreso fiscal, medido como un porcentaje del PBI, y su relación con la desigualdad. Analizaremos si alguna de estas variables, o ambas juntas, son útiles para explicar la desigualdad en un país observando los casos de varios países del mundo. Realizaremos este análisis mediante modelos de regresión gaussiana.
+
+Luego de analizar estas dos variables, incluiremos tres variables a nuestro análisis: el PBI, en índice de democracia y el índice de desarrollo humano. Añadiremos estas nuevas variables para realizar más análisis con los países con los que trabajamos. Primero, utilizaremos estas variables, junto con las ya utilizadas en los modelos de regresión gaussiana, para realizar una clusterización que nos permita saber si es posible agrupar a los países en grupos particulares y en cuantos grupos sería esto posible. También realizaremos un análisis factorial para saber si podemos utilizar las seis variables para construir un modelo que considere más variables para hacer un análisis de la realidad socio-económica de un país.
+
+# Explicacion de la dependiente e independendientes
+
+**Riqueza y desigualdad:** En un análisis sobre datos del Banco Mundial en 2016, en el diario BBC, Marcelo Justo busca señalar que solo ver a un país como "rico" no quiere decir que se encuentre bien en cuanto a la igualdad. Esto se ve mejor con el caso de América Latina, la cual, si bien no es la región más pobre, si es de las más desiguales del planeta. Además, también se ven casos como el de Estados Unidos, que es un país de ingresos promedios altos pero que sigue teniendo altos niveles de desigualdad. Por ello, se piensa que la riqueza de un país no afecta tanto realmente a la desigualdad.
+
+Para poder medir la riqueza de un país, se utilizará el PIB per cápita para medir la mayor o menor renta que perciben los ciudadanos de un país.
+
+https://www.bbc.com/mundo/noticias/2016/03/160308_america_latina_economia_desigualdad_ab
+
+**Impuestos y desigualdad:** En el año 2021, el Fondo Monetario Internacional presentó un informe en el cual se busca exponer la relación que tienen los impuestos con la desigualdad en América Latína. Según el FMI, La razón por la cual la región aún mantiene niveles altos de desigualdad es debido a su poca recaudación fiscal. Los impuestos latinoamericanos son más bajos que los de los países miembros de la OCDE, que tienen tazas de desigualdad menores. Por ello, se piensa que la desigualdad está relacionada con los impuestos.
+
+Para poder comprobar si esta realción realmente existe, se utilizará el ingreso fiscal como porcentaje del PBI para medir el incremento o disminución de los impuestos entre países.
+
+https://www.larepublica.co/globoeconomia/fallas-en-sistema-tributario-de-america-latina-segun-el-fondo-monetario-internacional-3277770
+
+**Desigualdad:** En ambos casos, para poner a prueba la teoría, se crearán modelos que representen la relación entre la variable independiente y la dependiente, que es la desigualdad. La desigualdad de cada país será medida con el índice de GINI, un índice que ,en una escala de 0 a 100, busca medir el nivel de desigualdad que existe en un país. A mayor índice GINI, mayor desigualdad.
+
+# Analisis de regresión:
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+library(rio)
+
+data=import("https://github.com/GianfrancoRomero/Trabajo_final_EST2/blob/main/Variables%20originales.xlsx?raw=true")
+
+data$ING_FIS=as.numeric(data$ING_FIS)
+data$GINI=as.numeric(data$GINI)
+
+library(Rmisc)
+data = data[complete.cases(data$GINI),]
+data = data[complete.cases(data$ING_FIS),]
+data = data[complete.cases(data$PIBPC),]
+
+modelo1=lm(data$GINI~data$PIBPC)
+library(stargazer)
+stargazer(modelo1, type = "text")
+```
+
+El p valor del ingreso fiscal es menor a 0.05, lo cual significa que sí existe una relación entre el PBI per cápita y el índice GINI. Al ver el coeficiente, podemos ver que esta es una relación negativa, lo cual significa que, mientras más se incremente el PIB per cápita, más reducirá el índice GINI. Esto quiere decir que podemos afirmar que un incremento en las rentas de los habitantes de un país reduciría la desigualdad entre ellos.
+
+# Análisis de cluster:
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+data_2=import("https://github.com/GianfrancoRomero/Trabajo_final_EST2/blob/main/Nuevas%20variables.xlsx?raw=true")
+
+data_2$PBI=as.numeric(data_2$PBI)
+
+full_data=merge(data,data_2)
+
+full_data = full_data[complete.cases(full_data$IDH),]
+full_data = full_data[complete.cases(full_data$DEMO),]
+full_data = full_data[complete.cases(full_data$PBI),]
+
+library(BBmisc)
+full_data_stan=normalize(full_data[,-1],method='standardize')
+full_data_stan=full_data_stan[complete.cases(full_data_stan),]
+
+full_data_stan$GINI=-1*full_data_stan$GINI
+
+dataClus=full_data_stan
+row.names(dataClus)=full_data$PAISES
+
+library(cluster)
+g.dist = daisy(dataClus, metric="gower")
+
+library(factoextra)
+set.seed(123)
+grupos=2
+res.diana <- hcut(g.dist, k = grupos,hc_func='diana')
+dataClus$diana=res.diana$cluster
+
+proyeccion = cmdscale(g.dist, k=2,add = T)
+dataClus$dim1 <- proyeccion$points[,1]
+dataClus$dim2 <- proyeccion$points[,2]
+base= ggplot(dataClus,aes(x=dim1, y=dim2,label=row.names(dataClus))) 
+base + geom_text(size=2, aes(color=as.factor(diana)))  + labs(title = "DIANA")
+```
+
+Al dividir los países de dos clusters, vemos que los países que se encuentran en ambos grupos comparten características similares. En el cluster 1, vemos los países con las mediciones más bajas de las variables. Son los países con menor riqueza, medida tanto con PBI del país como PBI per cápita, menor ingreso fiscal, menor índice de desarrollo humano, menor ínidce de democracia y mayor desigualdad. En el cluster 2 se encuentran países que, en promedio, se encuentran en una situación opuesta. Los clusters creados nos pueden servir para dividir los países entre "desarrollados" y "no desarrollados".
+
+# Análisis factorial:
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+FacData=merge(data,data_2)
+FacData=na.omit(FacData)
+
+dontselect=c("PAISES")
+select=setdiff(names(FacData),dontselect) 
+FacData=FacData[,select]
+
+FacData$GINI=-1*FacData$GINI
+
+library(polycor)
+corMatrix=polycor::hetcor(FacData)$correlations
+
+library(psych)
+library(GPArotation)
+resfa <- fa(FacData,
+            nfactors = 3,
+            cor = 'mixed',
+            rotate = "varimax",
+            fm="minres")
+
+fa.diagram(resfa)
+```
+
+Podemos ver que el índice de GINI y el PBI son variables las cuales no forman una variable tentativa con las demás, por lo cual podemos ignorarlas. La única variable que se forma es aquella que considera el índice de democracia, el PIB per cápita, el índice de desarrollo humano y el ingreso fiscal.
+
+Utilizaremos estas variables para formar un nuevo índice: un índice de desarrollo mutlidimensional. Dentro de la academia existe el reto de medir el desarrollo de un país. Una de las teorías que ha sido relevante en los últimos años es la de desarrollo multidimensional. El desarrollo no es simplemente mayor riqueza, sino que incluye muchas más dimensiones. Uno de los principales retos que tiene esta teoría es la de qué variables se deben considerar en un análisis de desarrollo multidimensional. Con el índice que hemos creado, podemos proponer una solución a este problema.
+
+La variable tentativa, que llamaremos "Indice de Desarrollo Multidimensional", estará compuesta de 4 dimensiones. Utilizamos el índice de democracia para medir la dimensión política del desarrollo. Una nación es más desarrollada en tanto permita la participación política de la ciudadanía. El PIB per cápita será utilizado para medir la dimensión de riqueza. Al considerar la producción promedio podremos conocer la riqueza que es percibida por la población mayoritaria, lo cual es un indicio de desarrollo. El índice de desarrollo humano será utilizado para conocer la dimensión de bienestar. Más allá de la riqueza monetaria, el bienestar incluye dimensiones como el acceso a la salud o la educación, las cuales están consideradas en el IDH. El ingreso fiscal nos servirá para conocer la dimensión de capacidad estatal. El desarrollo también debe considerar la capacidad que tiene el Estado para proveer de servicios necesarios para garantizar el bienestar de los ciudadanos. Por ello, el volúmen del ingreso nos servirá para conocer la capacidad del Estado para tener los recursos necesario para proveer tales servicios. Así, logramos crear un "Indice de Desarrollo Multidimensional".
+
+# Conclusiones
+
+En la regresión gaussiana, hemos observado que los aumentos en la productividad han terminado por ser más significativos que el ingreso fiscal para explicar la desigualdad. De hecho, esta última variable parece no ser significativa para este fin. De ello podemos concluir que el problema de la desigualdad puede no necesariamente ser reuelto mediante medidas redistributivas, somo suele proponerse. Vemos entonces que, si se quiere reducir la desigualdad en un país, los Estados deberían llevar a cabo políticas públicas que incrementen los ingresos que perciben los ciudadanos de sus actividades económicas.
+
+Con los clusters, hemos podido ver que las variables consideradas (PBI per cápita, ingreso fiscal, índice GINI, índice de desarrollo humano, índice de democracia y PBI nacional) son útiles para dividir los países entre "desarrollados" y "no desarrollados". Los países desarrollados serían aquellos donde los ciudadanos perciban altos ingresos, el Estado tenga gran capacidad para percibir ingresos de la tributación, exista menos desigualdad económica entre sus ciudadanos, exista un alto desarrollo humano, exista una democracia de calidad y la economía nacional sea altamente productiva. Si los países no desarrolo plantean llevar a cabo un proceso de desarrollo en el futuro, tendrían que considerar estas seis dimensiones para lograrlo.
+
+Con el análisis factorial, hemos propuesto un índice de desarrollo multidimensional. Con el, hemos abarcado cuatro dimensiones: la riqueza monetaria, la calidad de la democracia, el bienestar social y la capacidad del Estado. Aquellos países donde exista una democracia estable, los ciudadanos perciban altos ingresos, se otorguen servicios que garanticen el bienestar social y exista un Estado con la suficiente capacidad para mantener la situación de manera sostenible lograrán alcanzar el desarrollo desde muchas más dimensiones, logrando así satisfacer más demandas de los ciudadanos.
+
+# ANEXOS
+
+## Regresión y diagnósticos:
+
+### Preparación de la data:
+
+```{r}
+library(rio)
+
+data=import("https://github.com/GianfrancoRomero/Trabajo_final_EST2/blob/main/Variables%20originales.xlsx?raw=true")
+```
+
+```{r}
+data$ING_FIS=as.numeric(data$ING_FIS)
+data$GINI=as.numeric(data$GINI)
+```
+
+```{r}
+library(Rmisc)
+data = data[complete.cases(data$GINI),]
+data = data[complete.cases(data$ING_FIS),]
+data = data[complete.cases(data$PIBPC),]
+```
+
+### Modelo 1:
+
+La primera hipótesis a comprobar es que un país rico no es necesariamente menos desigual. Para probar esto, creamos un modelo con el PIB per cápita como la variable independiente y el índice GINI como la variable dependiente. El PIB per cápita nos ayudará a medir la riqueza promedio de los ciudadanos de un país. El índice GINI, que va del 0 al 100, nos ayudará a medir la desigualdad por país.
+
+```{r}
+modelo1=lm(data$GINI~data$PIBPC)
+summary(modelo1)
+
+library(stargazer)
+
+stargazer(modelo1, type = "text")
+```
+
+El p valor del ingreso fiscal es menor a 0.05, lo cual significa que sí existe una relación entre el PBI per cápita y el índice GINI. Al ver el coeficiente, podemos ver que esta es una relación negativa, lo cual significa que, mientras más se incremente el PIB per cápita, más reducirá el índice GINI. La magnitud del efecto del PBI per cápita es de -0.0001. Aunque podría parecer pequeño, hay que considerar que una unidad en la variable independiente equivale a un dólar. Esto quiere decir que, por ejemplo, si el PBI per cápita incrementa en 10000 dólares, el índice GINI disminuirá en 1 unidad.
+
+### Modelo 2:
+
+Hemos descubierto que la riqueza promedio de los ciudadanos tiene un efecto significativo en la desigualdad entre ellos, pero aún hay otra variable que podría explicar la desigualdad por país. La segunda hipótesis a comprobar es que a mayor recaudación fiscal habrá menos desigualdad. Para ver si esta nueva variable ayuda a explicar mejor la desigualdad, creamos otro modelo que incluya al ingreso fiscal, medido como el ingreso fiscal como promedio del PBI.
+
+```{r}
+modelo2=lm(data$GINI~data$ING_FIS + data$PIBPC)
+summary(modelo2)
+
+library(stargazer)
+
+stargazer(modelo2, type = "text")
+```
+
+Podemos ver que, basándonos en su P-value, este nuevo modelo también es significativo. Sin embargo, si vemos el P-value de cada variable, nos daremos cuenta de que el ingreso fiscal, la nueva variable, no es estadísticamente significativa. Si bien con este modelo podemos explicar la desigualdad, la nueva variable no parece ser un buen aporte para el modelo.
+
+### Anova:
+
+Ahora que ya hemos creado dos modelos para explicar la desigualdad, tenemos que averiguar cual es el mejor modelo para lograr tal objetivo. Para saberlo, los comparamos con una prueba anova.
+
+```{r}
+tanova=anova(modelo1,modelo2)
+stargazer(tanova,type = 'text',summary = F,title = "Tabla de Análisis de Varianza")
+```
+
+El P valor que nos muestra la prueba anova es mayor a 0.05. Esto significa que no existe una diferencia significativa entre el modelo 1 y el modelo 2. El modelo 2, el cual incluye tanto el ingreso fiscal como el PBI per cápita, no ha reducido el error del modelo 1, que solo incluye al PBI per cápita. Por ello, es mejor seguir utilizando el modelo 1 para explicar la desigualdad por país.
+
+### Diagnósticos de regresión:
+
+#### Linealidad:
+
+```{r}
+plot(modelo1, 1)
+```
+
+Vemos que la distribución de los casos no sigue completamente la línea horizontal. Este modelo no tiene mucha linealidad, lo cual significa que este modelo no sería muy útil para hacer predicciones en otros casos.
+
+#### Homocedasticidad:
+
+```{r}
+plot(modelo1, 3)
+```
+
+```{r}
+library(lmtest)
+
+bptest(modelo1)
+```
+
+El P-value es mayor a 0.05, con lo cual se mantiene la hipótesis nula. Si hay homocedasticidad. El error del modelo no afecta su varianza.
+
+#### Normalidad de los residuos:
+
+```{r}
+plot(modelo1, 2)
+```
+
+```{r}
+library(nortest)
+
+shapiro.test(modelo1$residuals)
+```
+
+El P-value es menor a 0.05, por lo cual se rechaza la hipótesis nula. Los residuos del modelo no tiene una distribución normal.
+
+#### No multicolinealidad:
+
+Debido a que el modelo tiene solo una variable independiente, es imposible hacer una prueba de no multicolinealidad.
+
+#### Valores influyentes:
+
+```{r}
+plot(modelo1, 5)
+```
+
+Vemos que ninguna observación está fuera de la línea de Cook, por lo cual no hay necesidad de eliminar algún caso, pues ninguno es problemático para el modelo.
+
+```{r}
+checkModelo1=as.data.frame(influence.measures(modelo1)$is.inf)
+head(checkModelo1)
+```
+
+```{r}
+checkModelo1[checkModelo1$cook.d & checkModelo1$hat,]
+```
+
+Con las pruebas extras al modelo, podemos estar seguros de que no hay ningún caso que tenga que eliminarse por su efecto en el modelo.
+
+## Clustering:
+
+### Preparación de la data:
+
+```{r}
+library(rio)
+
+data_2=import("https://github.com/GianfrancoRomero/Trabajo_final_EST2/blob/main/Nuevas%20variables.xlsx?raw=true")
+```
+
+```{r}
+data_2$PBI=as.numeric(data_2$PBI)
+```
+
+```{r}
+full_data=merge(data,data_2)
+```
+
+```{r}
+library(Rmisc)
+full_data = full_data[complete.cases(full_data$IDH),]
+full_data = full_data[complete.cases(full_data$DEMO),]
+full_data = full_data[complete.cases(full_data$PBI),]
+```
+
+```{r}
+boxplot(full_data[,-1])
+```
+
+Al graficar las variables, podemos ver que son bastante diferentes. Es muy difícil comparar variables que estén distribuidas de manera tan desigual. Para trabajar con ellas, estandarizaremos las variables.
+
+```{r}
+library(BBmisc)
+
+boxplot(normalize(full_data[,-1],method='range',range=c(0,1)))
+```
+
+```{r}
+boxplot(normalize(full_data[,-1],method='standardize'))
+```
+
+Optamos por el método de standardize.
+
+```{r}
+full_data_stan=normalize(full_data[,-1],method='standardize')
+full_data_stan=full_data_stan[complete.cases(full_data_stan),]
+```
+
+```{r}
+cor(full_data_stan)
+```
+
+La variable del índice de GINI tiene una relación negativa con el resto de las variables. Esto puede ser un problema para el proceso de clusterización, po lo que invertiremos la variable GINI.
+
+```{r}
+full_data_stan$GINI=-1*full_data_stan$GINI
+
+cor(full_data_stan)
+```
+
+Con el índice de GINI invertido, la variable ahora muestra que tan NO desigual es un país.
+
+```{r}
+dataClus=full_data_stan
+row.names(dataClus)=full_data$PAISES
+```
+
+```{r}
+library(cluster)
+g.dist = daisy(dataClus, metric="gower")
+```
+
+### Proponemos cantidad de clusters:
+
+**PAM:**
+
+```{r}
+library(factoextra)
+fviz_nbclust(dataClus, pam,diss=g.dist,method = "gap_stat",k.max = 10,verbose = F)
+```
+
+**AGNES:**
+
+```{r}
+fviz_nbclust(dataClus, hcut,diss=g.dist,method = "gap_stat",k.max = 10,verbose = F,hc_func = "agnes")
+```
+
+**DIANA:**
+
+```{r}
+fviz_nbclust(dataClus, hcut,diss=g.dist,method = "gap_stat",k.max = 10,verbose = F,hc_func = "diana")
+```
+
+Optamos por formar 2 clusters
+
+```{r}
+#PAM
+set.seed(123)
+grupos=2
+res.pam=pam(g.dist,k = grupos,cluster.only = F)
+dataClus$pam=res.pam$cluster
+
+#Agnes
+res.agnes<- hcut(g.dist, k =grupos,hc_func='agnes',hc_method = "ward.D")
+dataClus$agnes=res.agnes$cluster
+
+#Diana
+res.diana <- hcut(g.dist, k = grupos,hc_func='diana')
+dataClus$diana=res.diana$cluster
+```
+
+### Análisis de las siluetas:
+
+**PAM:**
+
+```{r}
+fviz_silhouette(res.pam)
+```
+
+**AGNES:**
+
+```{r}
+fviz_silhouette(res.agnes)
+```
+
+**DIANA:**
+
+```{r}
+fviz_silhouette(res.diana)
+```
+
+Se observa que el método de Diana es el que tiene un silhouette width mayor que los otros. Además, gracias al gráfico podemos observar que no tiene datos mal clusterizados. Por ello, optamos por utilizar Diana para hacer los clusters.
+
+```{r}
+library(magrittr)
+
+silPAM=data.frame(res.pam$silinfo$widths)
+silPAM$country=row.names(silPAM)
+poorPAM=silPAM[silPAM$sil_width<0,'country']%>%sort()
+
+silAGNES=data.frame(res.agnes$silinfo$widths)
+silAGNES$country=row.names(silAGNES)
+poorAGNES=silAGNES[silAGNES$sil_width<0,'country']%>%sort()
+
+silDIANA=data.frame(res.diana$silinfo$widths)
+silDIANA$country=row.names(silDIANA)
+poorDIANA=silDIANA[silDIANA$sil_width<0,'country']%>%sort()
+
+
+library("qpcR") 
+mal_Clus=as.data.frame(qpcR:::cbind.na(poorPAM, poorAGNES,poorDIANA))
+mal_Clus
+```
+
+Podemos ver que PAM tiene 1 dato mal clusterizado, AGNES tiene 8 y DIANA, como vimos en el gráfico de siluetas, no tiene ninguno. Esto refureza nuestra decisión de utilizar este método, pues nos muestra que, al utilizar este método de clusterización, ningún país quedará fuera de los clusters que creemos.
+
+```{r}
+aggregate(.~ pam, data=dataClus,mean)
+```
+
+```{r}
+original=aggregate(.~ pam, data=dataClus,mean)
+original[order(original$GINI),]
+```
+
+```{r}
+original[order(original$ING_FIS),]
+```
+
+```{r}
+original[order(original$PIBPC),]
+```
+
+```{r}
+original[order(original$IDH),]
+```
+
+```{r}
+original[order(original$DEMO),]
+```
+
+```{r}
+original[order(original$PBI),]
+```
+
+Vemos que en los dos clusters, los valores promedio de todas las variables son los mismos. En el cluster 1, se encuentran los casos con los menores valores en las variables. En el cluster 2, se encuentran los países con las variables con valores en promedio más altos.
+
+### Graficamos los clusters:
+
+```{r}
+proyeccion = cmdscale(g.dist, k=2,add = T)
+dataClus$dim1 <- proyeccion$points[,1]
+dataClus$dim2 <- proyeccion$points[,2]
+base= ggplot(dataClus,aes(x=dim1, y=dim2,label=row.names(dataClus))) 
+base + geom_text(size=2, aes(color=as.factor(diana)))  + labs(title = "DIANA") 
+```
+
+## Todo Factorial:
+
+### Preparación de la data:
+
+```{r}
+FacData=merge(data,data_2)
+
+FacData=na.omit(FacData)
+```
+
+```{r}
+dontselect=c("PAISES")
+select=setdiff(names(FacData),dontselect) 
+FacData=FacData[,select]
+```
+
+```{r}
+FacData$GINI=-1*FacData$GINI
+```
+
+### Análisis Factorial explicatorio
+
+```{r}
+library(polycor)
+corMatrix=polycor::hetcor(FacData)$correlations
+```
+
+```{r}
+library(ggcorrplot)
+
+ggcorrplot(corMatrix)
+```
+
+```{r}
+library(psych)
+psych::KMO(corMatrix)
+```
+
+El Overall MSA es mayor a 0.6, lo cual lo vuelve aceptable para un análisis factorial
+
+**-Hnula:** La matriz de correlacion es una matriz identidad
+
+```{r}
+cortest.bartlett(corMatrix,n=nrow(FacData))$p.value>0.05
+```
+
+**-Hnula:** La matriz de correlacion es una matriz singular.
+
+```{r}
+library(matrixcalc)
+
+is.singular.matrix(corMatrix)
+```
+
+En ambos tests, las variables han rechazado la hipítesis nula, lo que significa que la matriz de correlaciones es apta para el análisis factorial.
+
+#### Determinamos los factores:
+
+```{r}
+fa.parallel(FacData,fm = 'ML', fa = 'fa',correct = T)
+```
+
+Se proponen tres factores. Es decir, se podrían armar tres índices con las variables que se tienen.
+
+```{r}
+library(GPArotation)
+resfa <- fa(FacData,
+            nfactors = 3,
+            cor = 'mixed',
+            rotate = "varimax",
+            fm="minres")
+print(resfa$loadings)
+```
+
+```{r}
+print(resfa$loadings,cutoff = 0.5)
+```
+
+```{r}
+fa.diagram(resfa)
+```
+
+Antes se proponían 3 factores para las variables disponibles. Sin embargo, ahora podemos ver que las variables del índice de GINI y el PBI de cada país son tan diferentes de las otras variables que no podrían formar un índice con las demás. Por ello, optamos por no utilizarlas para formar un nuevo índice.
+
+### Análisis Factorial Confirmatorio:
+
+```{r}
+model <- 'Indice  =~  ING_FIS + PIBPC + IDH + DEMO'
+```
+
+```{r}
+# normalizar las variables:
+FacDataNorm=as.data.frame(scale(FacData))
+
+library(lavaan)
+
+cfa_fit <- cfa(model, data=FacDataNorm, 
+           std.lv=TRUE,  
+           missing="fiml")
+```
+
+```{r}
+allParamCFA=parameterEstimates(cfa_fit,standardized = T)
+allFitCFA=as.list(fitMeasures(cfa_fit))
+```
+
+```{r}
+allParamCFA[allParamCFA$op=="=~",]
+```
+
+```{r}
+allFitCFA[c("chisq", "df", "pvalue")] # pvalue>0.05
+```
+
+El p-value es mayor a 0.05. Es decir, el ChiSquare no es significativo.
+
+```{r}
+allFitCFA$tli # > 0.90
+```
+
+El índice Tucker Lewi es mayor a 0.90
+
+```{r}
+allFitCFA[c('rmsea.ci.lower','rmsea' ,'rmsea.ci.upper')] # 0.05 en el Int de Conf?
+```
+
+La Raíz del error cuadrático medio de aproximación es mayor a 0.05
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

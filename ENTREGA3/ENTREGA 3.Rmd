@@ -1,0 +1,177 @@
+---
+title: "Entrega 4"
+author: "Joel B. Huamani y Fabian Rios"
+date: "2022-2"
+subtitle: 'Curso: POL304 - Estadística para el análisis político 2'
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+```{r include=FALSE}
+#Librerías del ejercicio:
+# include = FALSE para que no salga en el html.
+library(rio)
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+library(kableExtra)
+library(reshape)
+library(DT)
+library(equatiomatic)
+library(modelsummary)
+library(factoextra)
+library(cluster)
+library(lmtest)
+library(nortest)
+```
+
+
+
+```{r include=FALSE}
+library(rio)
+data="https://github.com/taiyonoJoel/LIMPIEZA/raw/main/dataunificada.csv"
+
+data=import(data)
+```
+
+```{r echo=FALSE}
+data(desempleojuv, filter = "PBI")
+```
+
+```{r include=FALSE}
+data$inverex <- as.numeric(data$inverex)
+data$PBI      <- as.numeric(data$PBI)
+data$desempleojuv          <- as.numeric(data$desempleojuv)
+
+```
+
+```{r include=FALSE}
+
+data$transito      <- as.numeric(data$transito)
+data$obeadult<- as.numeric(data$obeadult)
+data$gastoseduc<- as.numeric(data$gastoseduc)
+
+```
+
+
+```{r include=FALSE}
+names(data)
+str(data)
+```
+
+# Regresión Lineal Múltiple
+```{r include=FALSE}
+modelo1 = lm(desempleojuv ~ inverex + PBI, data=data)
+summary(modelo1)
+```
+
+```{r include=FALSE}
+modelo2 = lm(desempleojuv ~ inverex + PBI  +  transito +  obeadult + gastoseduc, data=data)
+summary(modelo2)
+```
+
+Manteniendo todas las variables fijas
+(hipótesis)	H0:
+			H1:
++ Al revisar los p-values (4.05e-05), (0.00265) los cuales son menores a 0.05, rechazamos la H0. Por lo que a un 95% de confianza las variables independientes (PBI) y (geseco) tienen impacto significativo en la variable dependiente (desempleo). 
+
+Pero al revisar los p-values (0.1330), (0.25868) de las otras variables independientes (inverex) y (tugurio), respectivamente, advertimos que es mayor a 0.05, a saber, no aporta significativamente al modelo2. Por tanto, se recomienda construir un modelo de regresión sin las variables mencionadas. Pese a ello, para la interpretacón lo tomaremos en cuenta. Así se determina que el modelo2 solo es válido para predecir el desempleo de un persona, en este caso, a partir del crecimiento del PBI y la gestión económica de su respectivo país. 
+
+  + El modelo2 ayuda a predecir el 33% de la variabilidad de la variable desempleo de una persona. Cabe precisar que si quitamos las varaibles no signficativas del modelo de regresión, el Adjusted R-squared se mantiene casi igual. Por lo que podemos concluir que es un modelo medianamente bueno/decente.
+  
+```{r echo=FALSE}
+equatiomatic::extract_eq(modelo2, use_coefs = TRUE)
+```
+
+```{r echo=FALSE}
+model=list('desempleojuv'=data)
+
+modelsummary(modelo2, title = "OLS",
+             stars = TRUE,
+             output = "kableExtra")
+```
+
+
+### Diagnósticos de regresión:
+
+#### Linealidad:
+
+```{r echo=FALSE}
+plot(modelo2, 1)
+```
+
+Vemos que la distribución de los casos no sigue completamente la línea horizontal. Este modelo no tiene mucha linealidad, lo cual significa que este modelo no sería muy útil para hacer predicciones en otros casos.
+
+#### Homocedasticidad:
+
+```{r echo=FALSE}
+plot(modelo2, 3)
+```
+
+```{r echo=FALSE}
+bptest(modelo2)
+```
+
+El P-value es mayor a 0.05, por lo que se mantiene la hipótesis nula. Si hay homocedasticidad. El error del modelo no afecta su varianza.
+
+#### Normalidad de los residuos:
+
+```{r echo=FALSE}
+plot(modelo2, 2)
+```
+
+```{r echo=FALSE}
+shapiro.test(modelo2$residuals)
+```
+
+El P-value es menor a 0.05, por lo cual se rechaza la hipótesis nula. Los residuos del modelo no tiene una distribución normal.
+
+#### No multicolinealidad:
+
+Debido a que el modelo2 tiene solo una variable independiente, no esposible realizar una prueba de no multicolinealidad.
+
+#### Valores influyentes:
+
+```{r echo=FALSE}
+plot(modelo2, 5)
+```
+
+Advertimos observaciones que están fuera de la línea de Cook, a saber, hay necesidad de eliminar algunos casos, ya que son problemáticos para el modelo2, a excepcion del PBI.
+
+```{r echo=FALSE}
+checkModelo2=as.data.frame(influence.measures(modelo2)$is.inf)
+head(checkModelo2)
+```
+
+```{r echo=FALSE}
+checkModelo2[checkModelo2$cook.d & checkModelo2$hat,]
+```
+
+Con las pruebas extras al modelo, podemos estar seguros de que no hay ningún caso que tenga que eliminarse por su efecto en el modelo. 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
+
