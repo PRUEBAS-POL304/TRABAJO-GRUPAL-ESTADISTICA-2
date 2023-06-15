@@ -1,7 +1,8 @@
-# README - E4
+## README - E4
 
-## Trabajo-ESTADISTICA-2
-Aqui se encuentran las 4 entregas del trabajo del curso
+# Trabajo Final
+
+Aquí se encuentran las cuatro (4) entregas del trabajo grupal del curso ESTADÍSTICA PARA EL ANÁLISIS POLÍTICO 2 (POL304-0689)
 
 Revisar los `README.md` de cada entrega
 
