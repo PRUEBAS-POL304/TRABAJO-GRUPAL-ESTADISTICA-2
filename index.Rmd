@@ -35,7 +35,10 @@ library(cowplot)
 library(kableExtra)
 library(reshape)
 library(DT)
-library(equatiomatic)
+library(equatiomatic) # Instalar remotamente:
+#install.packages("equatiomatic")
+#remotes::install_github("datalorax/equatiomatic")
+ 
 library(modelsummary)
 library(factoextra)
 library(cluster)
@@ -106,7 +109,7 @@ Manteniendo todas las variables fijas...
 + Con estas conclusiones preliminares, vemos que los factores que toman en consideración Veronica Espinoza, para su revisión de la obesidad, como una barrera para el desempleo no se pueden aplicar en un marco a nivel global en comparación a los utilizados en Ecuador (a nivel nacional), de la misma manera ocurre en el Perú con Cesar Calvo y su postura con respecto a los gastos en educación y el ingreso recibido; los autores que realizaron sus investigaciones no es que no sean correctos, pero sus modelos de estudio no se pueden aplicar correctamente a nivel global.
   
 ```{r,echo=FALSE,message=FALSE,warning=FALSE}
-#equatiomatic::extract_eq(modelo2, use_coefs = TRUE)
+equatiomatic::extract_eq(modelo2, use_coefs = TRUE)
 ```
 
 ```{r,echo=FALSE,message=FALSE,warning=FALSE}
@@ -473,7 +476,7 @@ dataISO = read.csv(ISO)
 #Eliminando columnas innecesarias:
 dataISO = dataISO[, -c(2, 4:11)]
 
-newnames = c("pais", "iso3")
+newnames = c("pais", "ISO3_CODE")
 names(dataISO) = newnames
 
 dataISOvar = merge(datavar, dataISO, by = "pais")
@@ -487,18 +490,18 @@ varindep = dataISOvar[, c(1, 4, 16)]
 
 
 ```{r include=FALSE}
-mapDIS = sf::read_sf("shapes_mundo.shp") # shapefile
+mapDIS = sf::read_sf("./SHAPEFILES/shapes_mundo.shp") # shapefile
 ```
-
 
 #### Visualización del desempleo juvenil en el mundo
 
 ```{r include=FALSE}
 mapDIS2 = merge(mapDIS,
                 varindep,
-                by.x = 'iso3',
-                by.y = 'iso3',
+                by.x = 'ISO3_CODE',
+                by.y = 'ISO3_CODE',
                 all.x = T) #siempre primero el shape
+names(mapDIS)
 ```
 
 ```{r echo=FALSE, fig.height=5.55, fig.show='hold', fig.width=9.5, message=FALSE, warning=FALSE}
@@ -552,7 +555,10 @@ datavar$agnesVAR = factor(datavar$agnesVAR)
 ```
 
 ```{r echo=FALSE}
-mapDIS3=merge(mapDIS,dataISOvar,by.x='iso3',by.y='iso3', all.x = T) 
+mapDIS3=merge(mapDIS,dataISOvar, 
+              by.x='ISO3_CODE', 
+              by.y='ISO3_CODE', 
+              all.x = T) 
 ```
 
 ```{r echo=FALSE,message=FALSE,warning=FALSE,eval=TRUE,fig.show='hold',fig.width=9.5,fig.height=5.55, fig.align="center"}

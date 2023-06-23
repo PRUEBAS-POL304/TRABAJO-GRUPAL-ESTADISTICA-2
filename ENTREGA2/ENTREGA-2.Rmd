@@ -13,7 +13,10 @@ date: "2022-10-07"
 
 
 ```{r}
-library(htmltab)
+library(htmltab) # Instalar remotamente:
+#install.packages("remotes")
+#remotes::install_github("htmltab/htmltab")
+
 library(rio)
 library(readr)
 ```
