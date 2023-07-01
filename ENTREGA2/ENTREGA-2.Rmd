@@ -2,7 +2,7 @@
 title: "LIMPIEZA GENERAL"
 author: "Joel B. Hu y Fabian Rios"
 date: "2022-10-07"
-subtitle: ''
+subtitle: 'Curso: POL304 - Estadística para el análisis político 2'
 output:
   rmdformats::downcute:
     downcute_theme: "chaos"
@@ -15,8 +15,9 @@ output:
     includes:
       in_header: header-hu.html
 ---
-
-
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
 
 ## EL OBJETIVO ES DESCARTAR LAS VARIABLES QUE NO INFLUEYAN EN LA VARIABLE DEPENDIENTE
 
@@ -118,11 +119,19 @@ library(readr)
 
 library(dplyr)
 library(stringr)
-linkE = 'https://en.wikipedia.org/wiki/Democracy_Index'
-xpathE = '/html/body/div[3]/div[3]/div[5]/div[1]/table[6]'
-LiCiv = htmltab(linkE, xpathE)
-str_remove_all(LiCiv$name, " ")
-head(LiCiv)
+
+# linkE = 'https://en.wikipedia.org/wiki/Democracy_Index'
+# xpathE = '/html/body/div[3]/div[3]/div[5]/div[1]/table[6]'
+# LiCiv = htmltab(linkE, xpathE)
+# str_remove_all(LiCiv$name, " ")
+# head(LiCiv)
+
+WhereDEMO=list(page="https://en.wikipedia.org/wiki/Democracy_Index",
+               xpath='//*[@id="mw-content-text"]/div[1]/table[6]/tbody')
+LiCiv  = htmltab(doc = WhereDEMO$page, 
+                which  = WhereDEMO$xpath,
+                encoding = "UTF-8")
+
 ```
 
 Se limpia la data
@@ -171,7 +180,7 @@ library(dplyr)
 ```
 
 ```{r}
-DataBaseP2 <- DataBaseP1 %>% full_join(RoadW)
+#DataBaseP2 <- DataBaseP1 %>% full_join(RoadW)
 DataBaseP3 <- DataBaseP2 %>% full_join(ObesidadAdult)
 DataBase4 <- DataBaseP3 %>% full_join(LiCiv)
 ```
@@ -357,6 +366,7 @@ Unificando ambas:
 dataunificada = merge(dataall, dataall2, by = "pais")
 str(dataunificada)
 ```
+
 ```{r}
 dataunificada <- na.omit(dataunificada)
 ```
@@ -376,7 +386,7 @@ desempleo = import(datau)
 
 ```{r}
 #Borrando Filas
-desempleo = desempleo[-c(1:4), ]
+desempleo = desempleo[-c(1:4),]
 
 #seleccionando pais y inverext
 library(dplyr)
@@ -419,7 +429,6 @@ str(datajoel)
 
 NO OLVIDAR FORMATEAR LAS VARIABLES SI ES NECESARIO POR EJ.
 ```{r}
-#porsiaca
 datajoel$desempleojuv <- as.numeric(datajoel$desempleojuv)
 datajoel$inverex      <- as.numeric(datajoel$inverex)
 datajoel$PBI          <- as.numeric(datajoel$PBI)
