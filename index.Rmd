@@ -6,9 +6,7 @@ author2: "Profesor: José Manuel Magallanes Reyes "
 date: '2022-2'
 subtitle: 'Curso: POL304 - Estadística para el análisis político 2'
 output:
-  prettydoc::html_pretty:
-    theme: cayman
-    highlight: github
+  rmdformats::readthedown:
 ---
 
 Este breve reporte tiene como objetivo un análisis de correlación entre el desempleo juvenil (de jóvenes de 16 a 24 años) con las variables de la infraestructura de carreteras, la obesidad en adultos, la inversión extranjera, los gastos en educación pública y el PBI de 160 países del mundo en el año 2018. 
