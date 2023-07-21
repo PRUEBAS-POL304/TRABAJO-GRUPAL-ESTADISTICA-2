@@ -28,11 +28,6 @@ Limpieza de las bases de datos escogidas
 
     - tanova y diagnosticos de regresion
 
-```{r}
-library(htmltab) 
-library(readr)
-```
-
 Variables de José
 ============================================================
 
@@ -196,17 +191,12 @@ df_3 = merge(df_2, LiCiv, by = "pais")
 newdf_jose = merge(df_1, df_3, by = "pais")
 ```
 
-
 ```{r}
-modelo1_jose = desempleo ~ gastoseduc + inftransito + obeadult + libertadci
-```
-
-```{r}
-Modelo1 = lm(modelo1_jose, data = newdf_jose)
+Modelo1 = lm(desempleo ~ gastoseduc + inftransito + obeadult + libertadci, data = newdf_jose)
 summary(Modelo1)
 ```
 
-Diagnosticamos la regresion antes de llegar a una conclusion de la hipotesis. 
+## Diagnosticamos la regresion antes de llegar a una conclusion de la hipotesis. 
 
 ```{r}
 plot(Modelo1, 1)
@@ -214,9 +204,9 @@ plot(Modelo1, 3)
 plot(Modelo1, 2)
 ```
 
-### Interpretación:
+## Interpretación:
 
-  - Se ppuede observar que hay una normalidad de los residuos dentro de lo esperado y sus estandarizados se mantienen dentro de los margenes, lo que muestra una homocedasticidad. 
+  - Se puede observar que hay una normalidad de los residuos dentro de lo esperado y sus estandarizados se mantienen dentro de los margenes, lo que muestra una homocedasticidad. 
 
   - En adicion a esto tambien se puede ver que dichos residuos presentan una normalidad dentro de la mayoria de resultados por lo que la regresion Lineal se ve presente como la mas adecuada para las predicciones de las variables selecccionadas.
   
@@ -239,96 +229,120 @@ plot(Modelo1, 2)
 
 
 
+Variables de Joel
+============================================================
 
------------------------------------------------------
+## Variable independiente: Inversión extranjera
 
+### Importamos:
 
-
-
-
-
-
-
-
-
-LIMPIEZA JOEL
-
-
-  - INVERSION EXTRANJERA:
-  
 ```{r}
-library(rio)
-data1 = "https://github.com/20181496/Trabajo-final-Estadistica-2/files/9737725/inverex.csv"
-datainver = import(data1)
+inverex_df = import("https://github.com/luccemhu/TRABAJO-GRUPAL-ESTADISTICA-2/raw/main/dfs_E2/inverex.csv")
+#head(inverex_df)
 ```
 
+### Formateo:
+
 ```{r}
-#Borrando Filas
-datainver = datainver[-c(1:4), ]
+inverex_df = inverex_df[-c(1:4), ] # Borrando filas determinadas
 
-#seleccionando pais y inverext
 library(dplyr)
-inverextranjera <- select(datainver, 'Data Source', '_60')
+inverextranjera <- inverex_df |> 
+  select('Data Source', '_60') |> # Seleccionando pais y Year
+  na.omit() # Borrando NAs
 
-#Renombrando las columnas seleccionadas:
+# Renombrando las columnas seleccionadas
 colnames(inverextranjera) = c("pais", "inverex")
 ```
 
 
-  - CRECIMIENTO DEL PBI:
-  
+## Variable independiente: Crecimiento del PBI
+
+### Importamos:
+
 ```{r}
-data2 = "https://github.com/20181496/Trabajo-final-Estadistica-2/files/9737728/PBI.csv"
-dataPBI = import(data2)
+PBI_df = import("https://github.com/luccemhu/TRABAJO-GRUPAL-ESTADISTICA-2/raw/main/dfs_E2/PBI.csv")
+#head(PBI_df)
 ```
 
-```{r}
-#Borrando Filas
-dataPBI = dataPBI[-c(1:4), ]
-
-#seleccionando pais y PBI
-CreciPBI <- select(dataPBI, 'Data Source', '_60')
-
-#Renombrando las columnas seleccionadas:
-colnames(CreciPBI) = c("pais", "PBI")
-```
-
-
-  - GESTION ECONOMICA:
-  
-```{r}
-data3 = "https://github.com/20181496/Trabajo-final-Estadistica-2/files/9737726/geseco.csv"
-datageseco = import(data3)
-```
+### Formateo:
 
 ```{r}
-#Borrando Filas
-datageseco = datageseco[-c(1:4), ]
+PBI_df = PBI_df[-c(1:4), ] # Borrando filas determinadas
 
-#seleccionando pais y Gestión económica
-geseconomia <- select(datageseco, 'Data Source', '_60')
+library(dplyr)
+creciPBI <- PBI_df |> 
+  select('Data Source', '_60') |> # Seleccionando pais y Year
+  na.omit() # Borrando NAs
 
-#Renombrando las columnas seleccionadas:
-colnames(geseconomia) = c("pais", "geseco")
+# Renombrando las columnas seleccionadas
+colnames(creciPBI) = c("pais", "PBI")
 ```
 
 
-  - HOGARES TUGURIOS
-```{r}
-data4 = "https://github.com/20181496/Trabajo-final-Estadistica-2/files/9737723/tugurio.csv"
-datatugurios = import(data4)
-```
+## Variable independiente: Gestión económica
+
+### Importamos:
 
 ```{r}
-#Borrando Filas
-datatugurios = datatugurios[-c(1:4), ]
-
-#seleccionando pais y barriostugurio
-barriostugurio <- select(datatugurios, 'Data Source', '_60')
-
-#Renombrando las columnas seleccionadas:
-colnames(barriostugurio) = c("pais", "tugurio")
+geseco_df = import("https://github.com/luccemhu/TRABAJO-GRUPAL-ESTADISTICA-2/raw/main/dfs_E2/geseco.csv")
 ```
+
+### Formateo:
+
+```{r}
+geseco_df = geseco_df[-c(1:4), ] # Borrando filas determinadas
+
+library(dplyr)
+gestioneco <- geseco_df |> 
+  select('Data Source', '_60') |> # Seleccionando pais y Year
+  na.omit() # Borrando NAs
+
+# Renombrando las columnas seleccionadas
+colnames(gestioneco) = c("pais", "geseco")
+```
+
+
+## Variable independiente: Hogares Tugurios
+
+### Importamos:
+
+```{r}
+tugurio_df = import("https://github.com/luccemhu/TRABAJO-GRUPAL-ESTADISTICA-2/raw/main/dfs_E2/tugurio.csv")
+```
+
+### Formateo:
+
+```{r}
+tugurio_df = tugurio_df[-c(1:4), ] # Borrando filas determinadas
+
+library(dplyr)
+hogartugurio <- tugurio_df |> 
+  select('Data Source', '_60') |> # Seleccionando pais y Year
+  na.omit() # Borrando NAs
+
+# Renombrando las columnas seleccionadas
+colnames(hogartugurio) = c("pais", "tugurio")
+```
+
+
+## Unificamos las variables para realizar la regresión:
+
+```{r}
+df_4 = merge(inverextranjera, creciPBI, by = "pais")
+
+df_5 = merge(gestioneco, hogartugurio, by = "pais") # CAMBIAR LOS NOMBRES DE LOS PAISES DE ESTAS DATAS A INGLES
+
+df_joel = merge(df_4, df_5, by = "pais")
+```
+
+
+
+
+
+
+
+
 
 
 
@@ -379,25 +393,7 @@ dataunificada <- na.omit(dataunificada)
 dataunificada = dataunificada[-c(1:16), ]
 ```
 
-  - AHORA CON LA VARIABLE DEPENDIENTE: DESEMPLEO 
-  
-```{r}
-library(rio)
-datau = "https://github.com/20181496/Trabajo-final-Estadistica-2/files/9739394/desempleo.csv"
-desempleo = import(datau)
-```
 
-```{r}
-#Borrando Filas
-desempleo = desempleo[-c(1:4),]
-
-#seleccionando pais y inverext
-library(dplyr)
-desempleojuve <- select(desempleo, 'Data Source', '_60')
-
-#Renombrando las columnas seleccionadas:
-colnames(desempleojuve) = c("pais", "desempleojuv")
-```
 
 
 ```{r}
