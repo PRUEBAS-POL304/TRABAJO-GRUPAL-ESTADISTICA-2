@@ -1,12 +1,12 @@
-# ENTREGA_1
+# ENTREGA-1
 
 ## SELECCIÓN DE LAS BASES DE DATOS
 
 ## Miembros del grupo:
- + Joel B. Huamani (20196510)
+ + Joel B. Hu Ccallocunto (20196510)
  + Jose Rios (20181496)
  
-Tema de investigacion: El desempleo de jovenes y su relacion con el desarrollo estatal 
+Tema de investigación: El desempleo de jovenes y su relacion con el desarrollo estatal 
 [desempleoBM.csv](https://github.com/20181496/Trabajo-final-Estadistica-2/files/9936907/desempleoBM.csv)
 
 Variable dependiente: Desempleo de jovenes de 15 a 22 años (CIA) 
@@ -51,12 +51,13 @@ El desempleo es un problema economico, estructural por el cual miles de personas
    
    
 Bibliografía:
-Calvo, C. (2012) "La educacion como factor determinante de los ingresos laborales en el Perú"
+
+- Calvo, C. (2012) "La educacion como factor determinante de los ingresos laborales en el Perú"
 https://repositorio.upch.edu.pe/bitstream/handle/20.500.12866/9686/Educaci%C3%B3n_CalvoRamirez_Cesar.pdf?sequence=3&isAllowed=y Fecha de consulta: 7 de octubre de 2022
 
-Espinoza, V. (2014) "¿Es la obesidad una barrera para conseguir empleo?" Quito, Ecuador https://www.psico.org/articulos/obesidad-una-barrera-para-conseguir-empleo Fecha de consulta 6 de octubre de 2022
+- Espinoza, V. (2014) "¿Es la obesidad una barrera para conseguir empleo?" Quito, Ecuador https://www.psico.org/articulos/obesidad-una-barrera-para-conseguir-empleo Fecha de consulta 6 de octubre de 2022
 
-Feldman, H. (2010) "Capitulo 5: Libertad económica y desempleo" en Libertad Economica en el mundo: informe anual 2010
+- Feldman, H. (2010) "Capitulo 5: Libertad económica y desempleo" en Libertad Economica en el mundo: informe anual 2010
 https://www.elcato.org/pdf_files/efw2010/efw-capitulo5-2010.pdf fecha de consulta 6 de octubre de 2022
 
 
@@ -102,12 +103,11 @@ El grupo de gestión económica incluye la gestión macroeconómica, la polític
 
 + La población que vive en barrios marginales es la proporción de la población urbana que vive en hogares de barrios marginales. Un hogar de tugurios se define como un grupo de personas que viven bajo el mismo techo y carecen de una o más de las siguientes condiciones: acceso a agua mejorada, acceso a saneamiento mejorado, espacio suficiente para vivir y durabilidad de la vivienda. 
 
+Bibliografía:
 
-+ Bibliografía:
+- Garavito, C. (1998). Determinantes del Desempleo en Lima Metropolitana, 1970-1996. Economia, 21(41), 143-183. Retrieved from https://revistas.pucp.edu.pe/index.php/economia/article/view/150
 
-Garavito, C. (1998). Determinantes del Desempleo en Lima Metropolitana, 1970-1996. Economia, 21(41), 143-183. Retrieved from https://revistas.pucp.edu.pe/index.php/economia/article/view/150
-
-De La Hoz, F. J., Quejada, R. & Yánez, M. (2012). El desempleo juvenil: problema de efectos perpetuos. Revista Latinoamericana de Ciencias Sociales, Niñez y Juventud, 10, (1), pp. 427-439. Retrieved from http://www.scielo.org.co/pdf/rlcs/v10n1/v10n1a27
+- De La Hoz, F. J., Quejada, R. & Yánez, M. (2012). El desempleo juvenil: problema de efectos perpetuos. Revista Latinoamericana de Ciencias Sociales, Niñez y Juventud, 10, (1), pp. 427-439. Retrieved from http://www.scielo.org.co/pdf/rlcs/v10n1/v10n1a27
 
 
 variable dependiente:
