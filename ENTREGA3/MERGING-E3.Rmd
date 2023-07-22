@@ -257,3 +257,36 @@ export(DATALIMPIA, "DATALIMPIA.csv")
 
   
   
+  
+  ## Unificamos las variables para realizar la regresión:
+```{r}
+df_1 = merge(desempleojuve, obesidad, by = "pais")
+df_2 = merge(transito, gastos, by = "pais")
+df_3 = merge(df_2, LiCiv, by = "pais")
+
+df_jose = merge(df_1, df_3, by = "pais")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
