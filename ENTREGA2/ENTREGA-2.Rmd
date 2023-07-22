@@ -11,7 +11,7 @@ output:
     lightbox: true
     gallery: false
     highlight: github
-    code_folding: "hide"
+    code_folding: "show"
     includes:
       in_header: header-hu.html
 ---
@@ -424,9 +424,3 @@ Nota: en caso de que no corran los enlaces de github, importar y correr las base
 ```
 
   - Del mismo modo con las siguientes variables.  
-
-
-
-
-
-

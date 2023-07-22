@@ -1,11 +1,13 @@
-# README - E4
+# ENTREGA-1
 
-## Trabajo-ESTADISTICA-2
-Aqui se encuentran las 4 entregas del trabajo del curso
+## SELECCIÓN DE LAS BASES DE DATOS
 
-Revisar los `README.md` de cada entrega
+## Miembros del grupo:
 
-
+ + Joel B. Hu Ccallocunto (20196510)
+ 
+ + Jose Rios (20181496)
+ 
 # Determinantes del desempleo juvenil en el mundo 2020
 
 ### Bases de datos utilizadas para el análisis:
