@@ -26,7 +26,7 @@ Limpieza de las bases de datos escogidas
 
 - Para ello, importaremos las bases de datos escogidas, luego procederemos con la limpieza, después unificaremos las variables en una sola data y, finalmente, realizaremos las pruebas estadísticas correspondientes con la regresión lineal múltiple. 
 
-    - tanova y diagnosticos de regresion
+    - tanova y diagnosticos de regresion (Falta realizar esto)
 
 Variables de José
 ============================================================
