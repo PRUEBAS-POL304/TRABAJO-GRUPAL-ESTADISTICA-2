@@ -387,7 +387,6 @@ df_7 = merge(df_1, df_2, by = "pais")
 df3_joel = merge(df_7, df_4, by = "pais")
 ```
 
-
 ```{r}
 modelo4 = lm(desempleo ~ inverex + PBI + gastoseduc + inftransito + obeadult, data = df3_joel)
 summary(modelo4)
@@ -424,3 +423,10 @@ Nota: en caso de que no corran los enlaces de github, importar y correr las base
 ```
 
   - Del mismo modo con las siguientes variables.  
+  
+  
+# Finalmente, exportaremos la data de las variables finales escogidas en un data frame llamado `df_final`:
+```{r}
+#write.csv(df3_joel, "df_final.csv", row.names = FALSE)
+```
+

@@ -22,24 +22,26 @@ Miembros del grupo:
     
   - Variable dependiente:
     
-    - *desempleoBM.csv*: Desempleo de jóvenes de 15 a 22 años (BM) 
+    - *`desempleoBM.csv`*: Desempleo de jóvenes de 15 a 22 años (BM) 
 
   - Variables independientes:
 
-    - *inverex.csv*: Inversión extranjera directa 
+    - *`inverex.csv`*: Inversión extranjera directa 
     
-    - *PBI.csv*: Crecimiento del PIB (% anual)
+    - *`PBI.csv`*: Crecimiento del PIB (% anual)
     
-    - *ObesidadCIA.csv*: Obesidad (CIA)
+    - *`ObesidadCIA.csv`*: Obesidad (CIA)
     
-    - *GastosEdu.csv*: Gastos en Educacion (CIA)
+    - *`GastosEdu.csv`*: Gastos en Educacion (CIA)
     
-    - *RoadW.csv*: Infraestructura de Carreteras (CIA)
+    - *`RoadW.csv`*: Infraestructura de Carreteras (CIA)
     
 2. Datas descartadas debido a que no se encuentra correlacion con la variable dependiente y presentan pocos casos al realizar la unificacion de las datas:
 
-    - *Libertad civica*
+    - *`Libertad civica`*
     
-    - *geseco.csv*
+    - *`geseco.csv`*
     
-    - *tugurio.csv*
+    - *`tugurio.csv`*
+
+3. La data unificada con las variables finales escogidas se encuentran en el archivo llamado `df_final.csv`

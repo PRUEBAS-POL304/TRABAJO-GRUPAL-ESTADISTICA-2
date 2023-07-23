@@ -61,3 +61,25 @@ Ver Github pages por aquí: [luccemhu.github.io](https://luccemhu.github.io/)
 # LIMPIEZA
   - 5 variables independientes 
   - 1 variable dependiente
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+En este repositorio se encuentran los archivos de la unificacion de las variables en una sola data, su exportacion y también el avance del trabajo final a traves de una regresion lineal:
+
+
+
+
+
+
+
