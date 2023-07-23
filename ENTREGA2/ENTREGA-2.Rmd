@@ -1,5 +1,5 @@
 ---
-title: "Entrega 2: LIMPIEZA GENERAL"
+title: "Entrega 2: Limpieza general"
 author: "Joel B. Hu y Fabian Rios"
 date: "2022-10-07"
 subtitle: 'Curso: POL304 - Estadística para el análisis político 2'

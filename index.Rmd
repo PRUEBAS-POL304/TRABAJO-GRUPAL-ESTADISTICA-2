@@ -8,10 +8,15 @@ subtitle: 'Curso: POL304 - Estadística para el análisis político 2'
 output:
   prettydoc::html_pretty:
     toc: True
-    theme: Tactile
+    theme: cayman
     highlight: github
+    math: katex
+    includes:
+      in_header: header-hu.html
 ---
-
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
 Este breve reporte tiene como objetivo un análisis de correlación entre el desempleo juvenil (de jóvenes de 16 a 24 años) con las variables de la infraestructura de carreteras, la obesidad en adultos, la inversión extranjera, los gastos en educación pública y el PBI de 160 países del mundo en el año 2018. 
 
 Esto se realizará por medio de la creación de modelos de regresión para advertir cuales de las variables presentadas tienen un impacto sobre la variable dependiente (Desempleo juvenil). Todo ello con el objetivo de entender en mayor profundidad algunos determinantes que podrían explicar el desempleo juvenil en el mundo. 
