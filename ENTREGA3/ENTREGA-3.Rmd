@@ -36,45 +36,29 @@ library(nortest)
 ```
 
 
-
 ```{r include=FALSE}
-library(rio)
-data = "https://github.com/taiyonoJoel/LIMPIEZA/raw/main/dataunificada.csv"
-
-data = import(data)
-```
-
-```{r echo=FALSE}
-data(desempleojuv, filter = "PBI")
+variables_df = import("https://github.com/luccemhu/TRABAJO-GRUPAL-ESTADISTICA-2/raw/main/ENTREGA2/df_final.csv")
 ```
 
 ```{r include=FALSE}
-data$inverex <- as.numeric(data$inverex)
-data$PBI <- as.numeric(data$PBI)
-data$desempleojuv <- as.numeric(data$desempleojuv)
+# Convertimos las columnas desde la 2 a la 7 a númericas
+variables_df[,c(2:7)]=lapply(variables_df[,c(2:7)],as.numeric)
 ```
 
 ```{r include=FALSE}
-data$transito <- as.numeric(data$transito)
-data$obeadult <- as.numeric(data$obeadult)
-data$gastoseduc <- as.numeric(data$gastoseduc)
-```
-
-
-```{r include=FALSE}
-names(data)
-str(data)
+names(variables_df)
+str(variables_df)
 ```
 
 # Regresión Lineal Múltiple
 ```{r include=FALSE}
-modelo1 = lm(desempleojuv ~ inverex + PBI, data = data)
+modelo1 = lm(desempleo ~ inverex + PBI, data = variables_df)
 summary(modelo1)
 ```
 
 ```{r include=FALSE}
-modelo2 = lm(desempleojuv ~ inverex + PBI  +  transito +  obeadult + gastoseduc,
-             data = data)
+modelo2 = lm(desempleo ~ inverex + PBI + gastoseduc + inftransito + obeadult,
+             data = variables_df)
 summary(modelo2)
 ```
 

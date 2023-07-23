@@ -45,3 +45,13 @@ Miembros del grupo:
     - *`tugurio.csv`*
 
 3. La data unificada con las variables finales escogidas se encuentran en el archivo llamado `df_final.csv`
+
+  - Data unificada: [df_final.csv](https://github.com/luccemhu/TRABAJO-GRUPAL-ESTADISTICA-2/raw/main/ENTREGA2/df_final.csv)
+
+
+
+
+
+
+
+
