@@ -55,11 +55,8 @@ library(BBmisc)
 
 ```{r, include =FALSE,message=FALSE,warning=FALSE}
 library(rio)
-dataUNIFICADA = "https://github.com/taiyonoJoel/LIMPIEZA/raw/main/dataunificada.csv"
+dataUNIFICADA = "https://github.com/luccemhu/TRABAJO-GRUPAL-ESTADISTICA-2/raw/main/ENTREGA2/df_final.csv"
 datavar = import(dataUNIFICADA)
-
-#Eliminando filas innecesarias:
-datavar = datavar[-c(81:83, 133:139), ]
 ```
 
 ```{r include=FALSE}
@@ -70,32 +67,14 @@ table = datavar[, c(1, 3)]
 datatable(table, filter = "top")
 ```
 
-```{r, include =FALSE,message=FALSE,warning=FALSE}
-datavar$inverex       <- as.numeric(datavar$inverex)
-datavar$PBI           <- as.numeric(datavar$PBI)
-datavar$desempleojuv  <- as.numeric(datavar$desempleojuv)
-```
-
-```{r, include =FALSE,message=FALSE,warning=FALSE}
-datavar$transito      <- as.numeric(datavar$transito)
-datavar$obeadult      <- as.numeric(datavar$obeadult)
-datavar$gastoseduc    <- as.numeric(datavar$gastoseduc)
-```
-
-```{r, include =FALSE,message=FALSE,warning=FALSE}
-names(datavar)
-str(datavar)
-```
-
-
 # Regresión Lineal Múltiple
 ```{r, include =FALSE,message=FALSE,warning=FALSE}
-modelo1 = lm(desempleojuv ~ inverex + PBI, data = datavar)
+modelo1 = lm(desempleo ~ inverex + PBI, data = datavar)
 summary(modelo1)
 ```
 
 ```{r, include =FALSE,message=FALSE,warning=FALSE}
-modelo2 = lm(desempleojuv ~ inverex + PBI  +  transito +  obeadult + gastoseduc,
+modelo2 = lm(desempleo ~ inverex + PBI + gastoseduc + inftransito + obeadult,
              data = datavar)
 summary(modelo2)
 ```
@@ -214,7 +193,7 @@ cor(datavar[, -1])
 
 ```{r, include =FALSE,message=FALSE,warning=FALSE}
 dataClus = datavar[, -1]
-row.names(dataClus) = datavar$pais
+#row.names(dataClus) = datavar$pais
 ```
 
 ```{r, include =FALSE,message=FALSE,warning=FALSE}
@@ -343,11 +322,11 @@ original[order(original$PBI), ]
 ```
 
 ```{r, include =FALSE,message=FALSE,warning=FALSE}
-original[order(original$desempleojuv), ]
+original[order(original$desempleo), ]
 ```
 
 ```{r, include =FALSE,message=FALSE,warning=FALSE}
-original[order(original$transito), ]
+original[order(original$inftransito), ]
 ```
 
 ```{r, include =FALSE,message=FALSE,warning=FALSE}
@@ -411,36 +390,36 @@ PAMlabels = ifelse(datavar$pamVARpoor, datavar$pais, '')
 
 # base
 base = ggplot(datavar, aes(x = dim1, y = dim2))  +
-  scale_color_brewer(type = 'qual', palette = 'Dark2') + 
+  scale_color_brewer(type = 'qual', palette = 'Dark2') +
   labs(subtitle = "Se destacan los países mal clusterizados")
 
 pamPlot = base + geom_point(size = 3,
                             aes(color = pamVAR))  +
-  labs(title = "PAM")
-# hacer notorios los paises mal clusterizados
-pamPlot + geom_text_repel(
-  size = 4,
-  aes(label = PAMlabels),
-  max.overlaps = 50,
-  min.segment.length = unit(0, 'lines')
+  labs(title = "PAM") # hacer notorios los paises mal clusterizados
+
+pamPlot + geom_text_repel(size = 4,
+                          aes(label = PAMlabels),
+                          max.overlaps = 50,
+                          min.segment.length = unit(0, 'lines')
 )
 ```
 
 #### Gráfica de AGNES
   - Conglomerados en Mapa Bidimensional de países:
 ```{r echo=FALSE,message=FALSE,warning=FALSE,eval=TRUE,fig.show='hold',fig.width=9.5,fig.height=5.55, fig.align="center"}
-# solo paises mal clusterizados
-AGNESlabels=ifelse(datavar$agnesVARpoor,datavar$pais,'')
 
-agnesPlot=base + geom_point(size=3, 
-                            aes(color=as.factor(agnesVAR))) +
-          labs(title = "AGNES") 
-# hacer notorios los paises mal clusterizados
-agnesPlot + geom_text_repel(size=4,
-                            aes(label=AGNESlabels),
+# solo paises mal clusterizados
+AGNESlabels = ifelse(datavar$agnesVARpoor, datavar$pais, '')
+
+agnesPlot = base + geom_point(size = 3,
+                              aes(color = as.factor(agnesVAR))) + 
+  labs(title = "AGNES") # hacer notorios los paises mal clusterizados
+
+agnesPlot + geom_text_repel(size = 4,
+                            aes(label = AGNESlabels),
                             max.overlaps = 50,
                             min.segment.length = unit(0, 'lines')
-                            )
+)
 ```
 
 ```{r, include =FALSE,message=FALSE,warning=FALSE,eval=TRUE,fig.show='hold',fig.width=9.5,fig.height=5.55, fig.align="center"}
@@ -456,11 +435,10 @@ dianaPlot = base + geom_point(size = 3,
   labs(title = "DIANA")
 
 # hacer notorios los paises mal clusterizados
-dianaPlot + geom_text_repel(
-  size = 4,
-  aes(label = DIANAlabels),
-  max.overlaps = 50,
-  min.segment.length = unit(0, 'lines')
+dianaPlot + geom_text_repel(size = 4,
+                            aes(label = DIANAlabels),
+                            max.overlaps = 50,
+                            min.segment.length = unit(0, 'lines')
 )
 ```
 
@@ -491,7 +469,7 @@ dataISOvar = merge(datavar, dataISO, by = "pais")
 
 ```{r include=FALSE}
 ## SUBDATA: VARIABLE INDEPENDIENTE, PAIS E ISO:
-varindep = dataISOvar[, c(1, 4, 16)]
+varindep = dataISOvar[, c(1, 2, 16)]
 ```
 
 
@@ -516,25 +494,19 @@ names(mapDIS)
 mapaleyendaL = ggplot(mapDIS2) + geom_sf() + theme_light()
 
 mapaleyL = mapaleyendaL + geom_sf(data = mapDIS2,
-                                  aes(fill = desempleojuv),
+                                  aes(fill = desempleo),
                                   color = "gray")
 
-mapa = mapaleyL +
-  coord_sf() + theme_void() +
-  
-  theme(
-    axis.title = element_blank(),
-    axis.text = element_blank(),
-    legend.position = "bottom"
-  ) + labs(fill = " ") + theme(legend.text = element_text(size = 10)) +
-  
+mapa = mapaleyL + coord_sf() + theme_void() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        legend.position = "bottom") + 
+  labs(fill = " ") + theme(legend.text = element_text(size = 10)) +
   labs(title = "Desempleo juvenil en el mundo") +
-  
-  theme(plot.title = element_text(
-    color = "black",
-    size = 10,
-    face = "bold"
-  ))
+  theme(plot.title = element_text(color = "black",
+                                  size = 10,
+                                  face = "bold")
+        )
 
 mapa
 ```
@@ -568,23 +540,28 @@ mapDIS3=merge(mapDIS,dataISOvar,
 ```
 
 ```{r echo=FALSE,message=FALSE,warning=FALSE,eval=TRUE,fig.show='hold',fig.width=9.5,fig.height=5.55, fig.align="center"}
-mapaleyendaL= ggplot(mapDIS3)+ geom_sf() + theme_light()
 
-mapaleyL= mapaleyendaL + geom_sf(data=mapDIS3,
-              aes(fill=agnesVAR),color = "gray")
-      
-mapa3= mapaleyL +
-coord_sf() + 
-scale_fill_manual(values=c("#29211F","#65A752","#1C6AA8","#D72E3E")) + theme_void() +
-  
-  
-theme(axis.title = element_blank(), axis.text = element_blank(), legend.position = c(1.1,0.55)) + labs(fill=" ") + theme(legend.text = element_text(size = 13)) +
-  
-labs(title = "4 clusters",caption = "Fuente: Banco Mundial 2022. Elaboración propia.  @luccemhu") +
-  
-theme(
-plot.title = element_text(color="black", size=15, face="bold"),
-plot.caption = element_text(color = "black", size=10))
+mapaleyendaL = ggplot(mapDIS3) + geom_sf() + theme_light()
+
+mapaleyL = mapaleyendaL + geom_sf(data = mapDIS3,
+                                  aes(fill = agnesVAR), color = "gray")
+
+mapa3 = mapaleyL +
+  coord_sf() +
+  scale_fill_manual(values = c("#29211F", "#65A752", "#1C6AA8", "#D72E3E")) + 
+  theme_void() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        legend.position = c(1.1, 0.55)
+        ) + 
+  labs(fill = " ") + theme(legend.text = element_text(size = 13)) + 
+  labs(title = "4 clusters", 
+       caption = "Fuente: Banco Mundial 2022. Elaboración propia.  @luccemhu") +
+  theme(plot.title = element_text(color = "black",
+                                  size = 15,
+                                  face = "bold"),
+        plot.caption = element_text(color = "black", size = 10)
+  )
 
 mapa3
 ```
