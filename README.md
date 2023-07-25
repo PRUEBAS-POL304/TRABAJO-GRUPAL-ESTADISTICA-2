@@ -1,4 +1,4 @@
-# README de la cuarta entrega - Trabajo final
+# README de la cuarta entrega - [Trabajo final](https://pruebas-estadistica-2.github.io/TRABAJO-GRUPAL-ESTADISTICA-2/)
 
 Profesor: MAGALLANES REYES, JOSE MANUEL
 
@@ -55,6 +55,8 @@ Data unificada:
 -   **`df_final.csv`**: Base limpia con variables independientes escogidas a nivel mundial
 
 -   **`ENTREGA-2.Rmd`**: Rmd con el proceso de limpieza
+
+Trabajo final: https://pruebas-estadistica-2.github.io/TRABAJO-GRUPAL-ESTADISTICA-2/
 
 Códigos del trabajo final en...
 
