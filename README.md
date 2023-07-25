@@ -56,10 +56,8 @@ Data unificada:
 
 -   **`ENTREGA-2.Rmd`**: Rmd con el proceso de limpieza
 
-Trabajo final: https://pruebas-estadistica-2.github.io/TRABAJO-GRUPAL-ESTADISTICA-2/
-
 Códigos del trabajo final en...
 
 - **`index.Rmd`**
 
-Trabajo Final en **`Github Pages`**: [Determinantes de desempleo juvenil en el mundo](https://luccemhu.github.io/TRABAJO-GRUPAL-ESTADISTICA-2/)
+Trabajo Final en **`Github Pages`**: [Determinantes de desempleo juvenil en el mundo](https://pruebas-estadistica-2.github.io/TRABAJO-GRUPAL-ESTADISTICA-2/)
